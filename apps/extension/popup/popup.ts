@@ -9,6 +9,8 @@ const $ = <T extends HTMLElement>(id: string): T => {
 // `status` is a global on Window, so the element gets its own name.
 const statusEl = $('status');
 
+const SHORTCUT = 'Alt+Shift+F';
+
 function setStatus(message: string, tone: 'info' | 'error' = 'info'): void {
   statusEl.textContent = message;
   statusEl.className = tone === 'error' ? 'status error' : 'status';
@@ -43,16 +45,33 @@ async function send(type: 'capture-page' | 'pick-element'): Promise<void> {
       nodes?: number;
       transport?: string;
       error?: string;
+      payload?: string;
     };
     if (type === 'pick-element') {
       window.close();
       return;
     }
-    if (result?.ok) {
-      setStatus(`${result.nodes ?? 0} nodes ready via ${result.transport ?? 'clipboard'}`);
-    } else {
+    if (!result?.ok) {
       setStatus(result?.error ?? 'Capture failed', 'error');
+      return;
     }
+
+    // The page cannot write to the clipboard while this popup holds focus, so
+    // the content script hands the payload back and the copy happens here.
+    if (result.payload) {
+      try {
+        await navigator.clipboard.writeText(result.payload);
+      } catch (err) {
+        setStatus(
+          `Captured ${result.nodes ?? 0} nodes but the copy failed (${
+            err instanceof Error ? err.message : String(err)
+          }). Use the relay, or press ${SHORTCUT} on the page instead.`,
+          'error',
+        );
+        return;
+      }
+    }
+    setStatus(`${result.nodes ?? 0} nodes copied. Paste into the Figma plugin.`);
   } catch (err) {
     setStatus(err instanceof Error ? err.message : String(err), 'error');
   }

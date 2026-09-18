@@ -12,9 +12,17 @@ import { transformDocument } from '@web2figma/transform';
  * the page does not.
  */
 
+interface CaptureRequest {
+  dismissOverlays?: boolean;
+  autoLayout?: boolean;
+  transport?: 'clipboard' | 'relay';
+  /** Set by the background worker: no popup is open, so the page copies. */
+  copyHere?: boolean;
+}
+
 type Request =
-  | { type: 'capture-page'; dismissOverlays?: boolean; autoLayout?: boolean; transport?: 'clipboard' | 'relay' }
-  | { type: 'pick-element'; dismissOverlays?: boolean; autoLayout?: boolean; transport?: 'clipboard' | 'relay' }
+  | ({ type: 'capture-page' } & CaptureRequest)
+  | ({ type: 'pick-element' } & CaptureRequest)
   | { type: 'ping' };
 
 interface CaptureOutcome {
@@ -23,6 +31,8 @@ interface CaptureOutcome {
   bytes?: number;
   transport?: string;
   error?: string;
+  /** Returned when the caller (the popup) will do the clipboard write itself. */
+  payload?: string;
 }
 
 const fetchViaBackground = async (url: string): Promise<string | null> => {
@@ -57,9 +67,48 @@ function toast(message: string, tone: 'info' | 'error' = 'info'): void {
   setTimeout(() => el.remove(), 4000);
 }
 
+/**
+ * Copy from inside the page.
+ *
+ * navigator.clipboard.writeText refuses to run while the document is not
+ * focused, which is exactly the case when the extension popup is open: the
+ * popup holds focus, not the page. So this path is only used when the capture
+ * was started from a keyboard shortcut, where the page really is focused; the
+ * popup copies the payload itself.
+ */
+async function copyFromPage(payload: string): Promise<{ ok: boolean; error?: string }> {
+  if (document.hasFocus()) {
+    try {
+      await navigator.clipboard.writeText(payload);
+      return { ok: true };
+    } catch {
+      // Fall through to the legacy path below.
+    }
+  }
+
+  // execCommand still works from a focused textarea in an unfocused document in
+  // some Chrome versions, and costs nothing to try.
+  const area = document.createElement('textarea');
+  area.value = payload;
+  area.setAttribute('readonly', '');
+  area.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
+  document.body.appendChild(area);
+  area.select();
+  let copied = false;
+  try {
+    copied = document.execCommand('copy');
+  } catch {
+    copied = false;
+  }
+  area.remove();
+  if (copied) return { ok: true };
+  return { ok: false, error: 'the page could not write to the clipboard' };
+}
+
 async function deliver(
   doc: IRDocument,
   transport: 'clipboard' | 'relay',
+  copyHere: boolean,
 ): Promise<CaptureOutcome> {
   const payload = await encodePayload(doc);
 
@@ -75,27 +124,39 @@ async function deliver(
     toast(`Relay unavailable (${response?.error ?? 'no response'}), copying instead`, 'error');
   }
 
-  try {
-    await navigator.clipboard.writeText(payload);
+  // Started from the popup: hand the payload back and let the popup, which is
+  // the focused document, do the clipboard write.
+  if (!copyHere) {
+    return { ok: true, bytes: payload.length, transport: 'clipboard', payload };
+  }
+
+  const copy = await copyFromPage(payload);
+  if (copy.ok) {
     toast('Copied. Paste it into the Web2Figma plugin.');
     return { ok: true, bytes: payload.length, transport: 'clipboard' };
-  } catch (err) {
-    // Clipboard writes need a user gesture and a focused document; fall back to
-    // a textarea the user can copy from rather than losing the capture.
-    const area = document.createElement('textarea');
-    area.value = payload;
-    area.style.cssText =
-      'position:fixed;left:8px;bottom:8px;width:320px;height:120px;z-index:2147483647;';
-    document.body.appendChild(area);
-    area.select();
-    toast('Could not write to the clipboard. Copy the text box that just appeared.', 'error');
-    return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
+
+  // Last resort: show the payload so the capture is not lost.
+  const area = document.createElement('textarea');
+  area.value = payload;
+  area.style.cssText =
+    'position:fixed;left:8px;bottom:8px;width:320px;height:120px;z-index:2147483647;';
+  document.body.appendChild(area);
+  area.focus();
+  area.select();
+  toast('Could not reach the clipboard. Press Ctrl+C to copy the box that appeared.', 'error');
+  return { ok: false, bytes: payload.length, error: copy.error ?? 'clipboard unavailable' };
 }
 
 async function runCapture(
   root: Element,
-  options: { dismissOverlays?: boolean; autoLayout?: boolean; transport?: 'clipboard' | 'relay' },
+  options: {
+    dismissOverlays?: boolean;
+    autoLayout?: boolean;
+    transport?: 'clipboard' | 'relay';
+    /** True when no popup is open, so the page itself must do the copy. */
+    copyHere?: boolean;
+  },
 ): Promise<CaptureOutcome> {
   toast('Capturing...');
   const { doc: raw, elapsedMs } = await captureDocument(root, {
@@ -109,7 +170,7 @@ async function runCapture(
     stats.layout.frames === 0
       ? 0
       : Math.round((stats.layout.withLayout / stats.layout.frames) * 100);
-  const result = await deliver(doc, options.transport ?? 'clipboard');
+  const result = await deliver(doc, options.transport ?? 'clipboard', options.copyHere ?? false);
   toast(
     `${stats.nodesOut} nodes, ${coverage}% auto layout, ${(elapsedMs / 1000).toFixed(1)}s capture`,
   );
@@ -137,7 +198,9 @@ chrome.runtime.onMessage.addListener((request: Request, _sender, sendResponse) =
         if (elements.length > 1) {
           toast(`Capturing ${elements.length} elements`);
         }
-        void runCapture(target, request);
+        // By the time an element is picked the popup has closed, so the page
+        // is focused and can reach the clipboard itself.
+        void runCapture(target, { ...request, copyHere: true });
       },
       onCancel: () => toast('Picker cancelled'),
     });

@@ -72,7 +72,13 @@ async function dispatch(type: 'capture-page' | 'pick-element'): Promise<void> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) return;
   await ensureContentScript(tab.id);
-  await chrome.tabs.sendMessage(tab.id, { type });
+  // A keyboard shortcut leaves focus in the page, which is the one case where
+  // the page itself can reach the clipboard. Stored options are reused so the
+  // shortcut behaves like the last popup run.
+  const stored = (await chrome.storage.local.get('options')) as {
+    options?: { dismissOverlays: boolean; autoLayout: boolean; transport: string };
+  };
+  await chrome.tabs.sendMessage(tab.id, { type, ...(stored.options ?? {}), copyHere: true });
 }
 
 chrome.commands?.onCommand.addListener((command) => {
