@@ -62,6 +62,18 @@ export class MockNode {
 
   private pluginData: Record<string, string> = {};
 
+  /** Style bindings, so tests can assert what the styles pass applied. */
+  fillStyleId = '';
+  textStyleId = '';
+
+  async setFillStyleIdAsync(id: string): Promise<void> {
+    this.fillStyleId = id;
+  }
+
+  async setTextStyleIdAsync(id: string): Promise<void> {
+    this.textStyleId = id;
+  }
+
   appendChild(child: MockNode): void {
     child.parent?.removeChild(child);
     child.parent = this;

@@ -44,7 +44,7 @@ export class SandboxBridge {
   }
 
   /** Send a complete document: skeleton first, then assets, then commit. */
-  async sendDocument(doc: IRDocument): Promise<void> {
+  async sendDocument(doc: IRDocument, build: { createStyles?: boolean } = {}): Promise<void> {
     const images = doc.images;
     const skeleton: IRDocument = { ...doc, images: {} };
     send({ t: 'begin', total: countNodes(doc.root), doc: skeleton });
@@ -52,7 +52,8 @@ export class SandboxBridge {
     for (const [id, asset] of Object.entries(images)) {
       await this.sendAsset(id, asset);
     }
-    send({ t: 'commit' });
+    // Build options travel with the commit so the sandbox stays stateless.
+    parent.postMessage({ pluginMessage: { t: 'commit', ...build } }, '*');
   }
 
   private async sendAsset(id: string, asset: ImageAsset): Promise<void> {
@@ -115,9 +116,16 @@ export async function relayLatest(): Promise<IRDocument | null> {
   return (await res.json()) as IRDocument;
 }
 
+export interface RenderRequest {
+  width?: number;
+  widths?: number[];
+  fullPage?: boolean;
+  colorScheme?: 'light' | 'dark';
+}
+
 export async function relayRender(
   url: string,
-  options: { width?: number; fullPage?: boolean } = {},
+  options: RenderRequest = {},
 ): Promise<IRDocument> {
   const res = await fetch(`${RELAY_ORIGIN}/render`, {
     method: 'POST',

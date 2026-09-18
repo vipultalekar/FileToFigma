@@ -2,9 +2,9 @@
 
 What passed, what was deferred, milestone by milestone (PRD section 16).
 
-Last run: 149 tests green — 140 unit/integration (`pnpm test`) and 9 fixture
+Last run: 177 tests green — 161 unit/integration (`pnpm test`) and 16 fixture
 end-to-end (`FIXTURES=1 pnpm test:fixtures`). Auto Layout coverage across the
-fixture set: **77.2% of 333 frames**.
+fixture set: **79.0% of 428 frames**.
 
 ## M0 — Walking skeleton ✅
 
@@ -86,6 +86,56 @@ dependencies (`ocr`, `model`, `decode`), so `POST /image` currently returns an
 OCR-less skeleton and says so in the conversion report. Finishing M6 means
 choosing Tesseract.js versus a cloud OCR and deciding whose API key backs the
 vision model — which the PRD lists as an open decision for the product owner.
+
+## Beyond the PRD
+
+Added after studying html.to.design, the paid tool this project replaces. None
+of it needs the Chrome debugger permission that tool relies on.
+
+### Shadow DOM and web components ✅
+
+A shadow host paints its shadow tree, not its light DOM children, so walking
+`el.children` captured nothing: any page built from web components imported as
+an empty frame. The walk follows the rendered tree, projects slotted light DOM
+at the slot's position, and reports a closed root as `degraded` rather than
+dropping it. Fixture: `web-components.html`.
+
+### High-resolution images ✅
+
+The browser picks a `srcset` candidate for the viewport it rendered at, often at
+half resolution. Capture re-reads `srcset` and the `<picture>` sources and takes
+the sharpest, skipping art-directed `media` sources whose crop differs from what
+was on screen.
+
+### Multi-breakpoint import ✅
+
+`POST /render` accepts `widths` and returns one document with a frame per
+breakpoint laid out in a row (`combineDocuments`, which namespaces node and
+asset ids so two captures cannot collide). Verified against
+`responsive-layout.html`: 1440x252, 768x400 and 390x561 are three genuinely
+different layouts, not the same page three times.
+
+### Dark mode ✅
+
+`POST /render` accepts `colorScheme`, rendering under `prefers-color-scheme:
+dark`. Asserted by capturing the same fixture twice and checking the paints
+actually differ.
+
+### Figma styles ✅
+
+With the Styles toggle on, repeated colours and text styles become real Figma
+paint and text styles, named `Web/Colour/Blue 600 / 2563EB` and
+`Web/Text/Inter Semi Bold / 16·24`. Only values used three or more times earn a
+style: one per one-off colour leaves a designer a list to delete. The run also
+found a genuine bug — font resolution was only reaching the deduplicated
+`FontRequest` instances, so most text segments silently fell back to Inter.
+
+### Still missing from html.to.design
+
+- Hover states as component variants (~2 days).
+- Prototype links from `<a href>`; the hrefs are already captured (~half day).
+- Cross-origin iframes: genuinely needs `chrome.debugger`, which brings a
+  frightening permission prompt. Not planned.
 
 ## Deviations from the PRD
 

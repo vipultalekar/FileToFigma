@@ -2,7 +2,12 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { autoLayoutCoverage, transformDocument } from '@web2figma/transform';
+import {
+  DEFAULT_BREAKPOINTS,
+  autoLayoutCoverage,
+  combineDocuments,
+  transformDocument,
+} from '@web2figma/transform';
 import { isFrame, isText, walk } from '@web2figma/ir';
 import { buildDocument } from '../apps/plugin/src/builder/build.js';
 import {
@@ -200,6 +205,85 @@ describe('web components', () => {
         doc.warnings.some((w) => w.property === 'shadow-dom' && w.severity === 'degraded'),
       ).toBe(true);
       expect(texts.some((t) => t.includes('invisible to the capture'))).toBe(false);
+    } finally {
+      figmaMock.uninstall();
+    }
+  }, 120_000);
+});
+
+describe('multi-breakpoint import', () => {
+  /**
+   * Three viewports of a genuinely fluid page, combined into one document.
+   * The assertion that matters is that the layouts actually differ: capturing
+   * the same page three times would be worse than useless.
+   */
+  it('captures three viewports and lays them out in a row', async () => {
+    figmaMock = installMockFigma();
+    try {
+      const captures = [];
+      for (const breakpoint of DEFAULT_BREAKPOINTS) {
+        const shot = await captureFixture('responsive-layout.html', { width: breakpoint.width });
+        const { doc: transformed } = transformDocument(shot.doc);
+        captures.push({ doc: transformed, label: breakpoint.label, width: breakpoint.width });
+      }
+
+      const combined = combineDocuments(captures, { gap: 100 });
+      const kids = isFrame(combined.root) ? combined.root.children : [];
+      expect(kids).toHaveLength(3);
+      expect(kids.map((k) => k.name)).toEqual([
+        'Desktop · 1440',
+        'Tablet · 768',
+        'Mobile · 390',
+      ]);
+
+      // Laid out left to right, no overlap.
+      expect(kids[0]!.rect.x).toBe(0);
+      expect(kids[1]!.rect.x).toBe(kids[0]!.rect.w + 100);
+
+      // The media queries really fired: narrower viewports are taller.
+      expect(kids[2]!.rect.h).toBeGreaterThan(kids[0]!.rect.h);
+      expect(kids[0]!.rect.w).toBeGreaterThan(kids[2]!.rect.w);
+
+      // One document the builder can consume in a single pass.
+      const { root, report } = await buildDocument(combined);
+      expect(root.children).toHaveLength(3);
+      expect(report.warnings.filter((w) => w.property === 'build')).toHaveLength(0);
+    } finally {
+      figmaMock.uninstall();
+    }
+  }, 180_000);
+});
+
+describe('dark mode capture', () => {
+  it('captures the page under prefers-color-scheme: dark', async () => {
+    figmaMock = installMockFigma();
+    try {
+      const light = await captureFixture('responsive-layout.html', {
+        width: 1440,
+        colorScheme: 'light',
+      });
+      const dark = await captureFixture('responsive-layout.html', {
+        width: 1440,
+        colorScheme: 'dark',
+      });
+
+      const firstSolid = (d: typeof light): string => {
+        for (const node of walk(d.doc.root)) {
+          if (!isFrame(node)) continue;
+          const fill = node.fills.find((f) => f.type === 'SOLID');
+          if (fill && fill.type === 'SOLID') {
+            return [fill.color.r, fill.color.g, fill.color.b]
+              .map((c) => Math.round(c * 255))
+              .join(',');
+          }
+        }
+        return 'none';
+      };
+
+      expect(firstSolid(light)).not.toBe(firstSolid(dark));
+      // The dark capture really is dark.
+      const darkChannels = firstSolid(dark).split(',').map(Number);
+      expect(Math.max(...darkChannels)).toBeLessThan(80);
     } finally {
       figmaMock.uninstall();
     }

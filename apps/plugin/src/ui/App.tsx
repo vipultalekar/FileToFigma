@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { BuilderMessage, ConversionReport, IRDocument } from '@web2figma/ir';
 import { groupWarnings } from '@web2figma/shared';
-import { transformDocument } from '@web2figma/transform';
+import { DEFAULT_BREAKPOINTS, transformDocument } from '@web2figma/transform';
 import { captureInIframe } from '@web2figma/capture';
 import {
   SandboxBridge,
@@ -30,6 +30,7 @@ export function App(): JSX.Element {
   const [report, setReport] = useState<ConversionReport | null>(null);
   const [relayUp, setRelayUp] = useState<boolean | null>(null);
   const [autoLayout, setAutoLayout] = useState(true);
+  const [createStyles, setCreateStyles] = useState(false);
   const bridgeRef = useRef<SandboxBridge | null>(null);
 
   const bridge = useMemo(() => {
@@ -68,12 +69,12 @@ export function App(): JSX.Element {
           kind: 'busy',
           message: `Sending ${stats.nodesOut} nodes`,
         });
-        await bridge.sendDocument(doc);
+        await bridge.sendDocument(doc, { createStyles });
       } catch (err) {
         setStatus({ kind: 'error', message: err instanceof Error ? err.message : String(err) });
       }
     },
-    [autoLayout, bridge],
+    [autoLayout, bridge, createStyles],
   );
 
   // A paste anywhere in the plugin panel counts, not only inside the textarea:
@@ -97,14 +98,24 @@ export function App(): JSX.Element {
     <div className="app">
       <header>
         <span className="logo">Web2Figma</span>
-        <label className="toggle">
-          <input
-            type="checkbox"
-            checked={autoLayout}
-            onChange={(e) => setAutoLayout(e.currentTarget.checked)}
-          />
-          Auto Layout
-        </label>
+        <div className="row">
+          <label className="toggle">
+            <input
+              type="checkbox"
+              checked={autoLayout}
+              onChange={(e) => setAutoLayout(e.currentTarget.checked)}
+            />
+            Auto Layout
+          </label>
+          <label className="toggle" title="Create Figma colour and text styles from values the page repeats">
+            <input
+              type="checkbox"
+              checked={createStyles}
+              onChange={(e) => setCreateStyles(e.currentTarget.checked)}
+            />
+            Styles
+          </label>
+        </div>
       </header>
 
       <nav className="tabs">
@@ -212,7 +223,17 @@ function PasteTab({ run }: TabProps): JSX.Element {
 
 function UrlTab({ run, relayUp }: TabProps & { relayUp: boolean | null }): JSX.Element {
   const [url, setUrl] = useState('');
-  const [width, setWidth] = useState(1440);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [widths, setWidths] = useState<number[]>([1440]);
+
+  const toggleWidth = (width: number): void => {
+    setWidths((current) =>
+      current.includes(width)
+        ? current.filter((w) => w !== width)
+        : [...current, width].sort((a, b) => b - a),
+    );
+  };
+
   return (
     <section>
       <p className="hint">
@@ -226,26 +247,58 @@ function UrlTab({ run, relayUp }: TabProps & { relayUp: boolean | null }): JSX.E
         value={url}
         onChange={(e) => setUrl(e.currentTarget.value)}
       />
-      <label className="row">
-        Viewport width
-        <input
-          type="number"
-          value={width}
-          min={320}
-          max={2560}
-          onChange={(e) => setWidth(Number(e.currentTarget.value))}
-        />
-      </label>
+
+      <div className="field">
+        <span className="label">Breakpoints</span>
+        <div className="row wrap">
+          {DEFAULT_BREAKPOINTS.map((b) => (
+            <label key={b.width} className="toggle">
+              <input
+                type="checkbox"
+                checked={widths.includes(b.width)}
+                onChange={() => toggleWidth(b.width)}
+              />
+              {b.label} {b.width}
+            </label>
+          ))}
+        </div>
+        {widths.length > 1 && (
+          <p className="hint">
+            {widths.length} captures, laid out side by side in one frame.
+          </p>
+        )}
+      </div>
+
+      <div className="field">
+        <span className="label">Theme</span>
+        <div className="row">
+          {(['light', 'dark'] as const).map((t) => (
+            <label key={t} className="toggle">
+              <input
+                type="radio"
+                name="theme"
+                checked={theme === t}
+                onChange={() => setTheme(t)}
+              />
+              {t === 'light' ? 'Light' : 'Dark'}
+            </label>
+          ))}
+        </div>
+      </div>
+
       <div className="row">
         <button
           className="primary"
-          disabled={!relayUp || url.trim() === ''}
-          onClick={() => void run('Rendering page', () => relayRender(url, { width, fullPage: true }))}
+          disabled={!relayUp || url.trim() === '' || widths.length === 0}
+          onClick={() =>
+            void run('Rendering page', () =>
+              relayRender(url, { widths, fullPage: true, colorScheme: theme }),
+            )
+          }
         >
-          Import URL
+          {widths.length > 1 ? `Import ${widths.length} breakpoints` : 'Import URL'}
         </button>
         <button
-          className="ghost"
           disabled={!relayUp}
           onClick={() =>
             void run('Fetching last capture', async () => {
@@ -410,6 +463,22 @@ function Report({
               </dd>
             </div>
           </dl>
+
+          {report.stylesCreated && (
+            <>
+              <h3>Figma styles created</h3>
+              <p className="hint">
+                {report.stylesCreated.colors} colour, {report.stylesCreated.texts} text
+              </p>
+              <ul className="warnings">
+                {report.stylesCreated.names.slice(0, 12).map((name) => (
+                  <li key={name}>
+                    <span className="prop">{name}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
 
           {report.fontSubstitutions.length > 0 && (
             <>

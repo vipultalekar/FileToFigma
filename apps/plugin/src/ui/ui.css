@@ -122,6 +122,23 @@ input[type='text'] {
   gap: 8px;
 }
 
+.row.wrap {
+  flex-wrap: wrap;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field > .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
 button {
   font: inherit;
   cursor: pointer;

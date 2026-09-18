@@ -346,6 +346,8 @@ export interface ConversionReport {
   fontSubstitutions: { requested: string; resolved: string }[];
   warnings: Warning[];
   elapsedMs: number;
+  /** Present when the run created Figma colour and text styles. */
+  stylesCreated?: { colors: number; texts: number; names: string[] };
 }
 
 /* -------------------------------------------------------------- defaults -- */

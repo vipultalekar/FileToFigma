@@ -23,6 +23,8 @@ export interface RenderOptions {
   cookies?: { name: string; value: string; domain: string; path?: string }[];
   timeoutMs?: number;
   userAgent?: string;
+  /** Emulates prefers-color-scheme, so a page's dark theme can be captured. */
+  colorScheme?: 'light' | 'dark';
 }
 
 let browser: Browser | null = null;
@@ -51,6 +53,9 @@ export async function renderUrl(url: string, options: RenderOptions = {}): Promi
   const context = await (await getBrowser()).newContext({
     viewport: { width, height },
     deviceScaleFactor: 1,
+    // A dark capture is just the page rendered under prefers-color-scheme:
+    // dark, which is how every modern site switches theme.
+    colorScheme: options.colorScheme ?? 'light',
     ...(options.userAgent ? { userAgent: options.userAgent } : {}),
   });
   if (options.cookies?.length) {

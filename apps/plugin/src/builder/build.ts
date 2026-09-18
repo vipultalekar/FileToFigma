@@ -11,7 +11,9 @@ import type {
 } from '@web2figma/ir';
 import { LAYOUT_CONFIDENCE_THRESHOLD, isFrame, isImage, isText, isVector, walk } from '@web2figma/ir';
 import { WarningSink } from '@web2figma/shared';
+import { fontKey } from '@web2figma/transform';
 import { collectFonts, resolveFont, type AvailableFont } from './fonts.js';
+import { applyStyles, type StyleReport } from './styles.js';
 import { applyStrokes, toFigmaEffect, toFigmaPaints, type ImageHashMap } from './paints.js';
 
 /**
@@ -30,6 +32,10 @@ export interface BuildOptions {
   onProgress?: (done: number, total: number, stage: string) => void;
   /** Below this, layout is still applied but a warning is recorded. */
   confidenceThreshold?: number;
+  /** Create Figma colour and text styles from values the page repeats. */
+  createStyles?: boolean;
+  /** How many uses a value needs before it becomes a style. */
+  minStyleUses?: number;
 }
 
 interface BuiltNode {
@@ -40,7 +46,7 @@ interface BuiltNode {
 export async function buildDocument(
   doc: IRDocument,
   options: BuildOptions = {},
-): Promise<{ root: FrameNode; report: ConversionReport }> {
+): Promise<{ root: FrameNode; report: ConversionReport; styles?: StyleReport }> {
   const started = Date.now();
   const warnings = new WarningSink();
   warnings.absorb(doc.warnings);
@@ -75,6 +81,24 @@ export async function buildDocument(
       });
     }
   }
+  // collectFonts dedupes by key, so `requests` holds one FontRequest per
+  // distinct font. Every other segment carries its own object with the same
+  // key, and those would never learn what the font resolved to: their ranged
+  // styles would silently fall back to Inter. Push the resolution back out to
+  // all of them.
+  const resolutions = new Map<string, { family: string; style: string }>();
+  for (const r of requests) {
+    if (r.resolved) resolutions.set(fontKey(r), r.resolved);
+  }
+  for (const node of walk(doc.root)) {
+    if (!isText(node)) continue;
+    for (const segment of node.segments) {
+      if (segment.font.resolved) continue;
+      const resolved = resolutions.get(fontKey(segment.font));
+      if (resolved) segment.font.resolved = resolved;
+    }
+  }
+
   const unique = new Map<string, FontName>();
   for (const r of requests) {
     if (!r.resolved) continue;
@@ -182,6 +206,19 @@ export async function buildDocument(
     }
   }
 
+  /* 5b -- styles, once every node exists and carries its final paints. */
+  let styles: StyleReport | undefined;
+  if (options.createStyles) {
+    options.onProgress?.(done, total, 'styles');
+    try {
+      styles = await applyStyles(doc, byIrId, {
+        ...(options.minStyleUses !== undefined ? { minUses: options.minStyleUses } : {}),
+      });
+    } catch (err) {
+      warnings.degraded('', 'styles', `could not create styles: ${errorText(err)}`);
+    }
+  }
+
   /* 6 -- show the user what was built. */
   figma.currentPage.selection = [root];
   figma.viewport.scrollAndZoomIntoView([root]);
@@ -202,8 +239,15 @@ export async function buildDocument(
     warnings: warnings.all as Warning[],
     elapsedMs: Date.now() - started,
   };
+  if (styles) {
+    report.stylesCreated = {
+      colors: styles.colors.length,
+      texts: styles.texts.length,
+      names: [...styles.colors, ...styles.texts].map((s) => s.name),
+    };
+  }
   options.onProgress?.(total, total, 'done');
-  return { root, report };
+  return { root, report, ...(styles ? { styles } : {}) };
 }
 
 /* ------------------------------------------------------------ node kinds -- */

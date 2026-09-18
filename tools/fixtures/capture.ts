@@ -92,7 +92,7 @@ export async function closeFixtureBrowser(): Promise<void> {
 
 export async function captureFixture(
   name: string,
-  options: { width?: number } = {},
+  options: { width?: number; colorScheme?: 'light' | 'dark' } = {},
 ): Promise<FixtureCapture> {
   const file = resolve(FIXTURE_DIR, name);
   const html = await readFile(file, 'utf8');
@@ -101,6 +101,7 @@ export async function captureFixture(
   const context = await (await getBrowser()).newContext({
     viewport: { width, height: 900 },
     deviceScaleFactor: 1,
+    colorScheme: options.colorScheme ?? 'light',
   });
   const page = await context.newPage();
   try {

@@ -76,6 +76,9 @@ pnpm relay                        # listens on http://localhost:3579
 | A page you are looking at | Extension → Capture page, then paste into the plugin |
 | One component from a page | Extension → Pick an element, click the nav bar |
 | A URL, without leaving Figma | Start the relay, then plugin → URL tab |
+| The same page at three breakpoints | URL tab → tick Desktop, Tablet and Mobile |
+| A page's dark theme | URL tab → Theme: Dark |
+| Colour and text styles in the file | Tick **Styles** in the header before importing |
 | A local or AI-generated HTML file | Plugin → Local HTML tab, drop the file |
 | A screenshot | Start the relay, then plugin → Image tab (see PROGRESS.md) |
 
@@ -88,8 +91,8 @@ selection that imported badly.
 ## Testing
 
 ```bash
-pnpm test                        # 140 unit and integration tests, no browser
-FIXTURES=1 pnpm test:fixtures    # 9 golden-fixture end-to-end tests, needs Chromium
+pnpm test                        # 161 unit and integration tests, no browser
+FIXTURES=1 pnpm test:fixtures    # 16 golden-fixture end-to-end tests, needs Chromium
 FIXTURES=1 npx vitest run tools/report.test.ts   # Auto Layout coverage report
 ```
 

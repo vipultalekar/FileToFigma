@@ -1,7 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import type { IRDocument } from '@web2figma/ir';
-import { transformDocument } from '@web2figma/transform';
+import { DEFAULT_BREAKPOINTS, combineDocuments, transformDocument } from '@web2figma/transform';
 import { imageToHtml } from '@web2figma/image-pipeline';
 import { closeBrowser, renderHtml, renderUrl, screenshotHtml } from './renderer.js';
 
@@ -61,6 +61,15 @@ function store(doc: IRDocument): string {
   return id;
 }
 
+/** Name a width the way a designer would. */
+function labelFor(width: number): string {
+  const known = DEFAULT_BREAKPOINTS.find((b) => b.width === width);
+  if (known) return known.label;
+  if (width <= 480) return 'Mobile';
+  if (width <= 1024) return 'Tablet';
+  return 'Desktop';
+}
+
 const server = createServer((req, res) => {
   void handle(req, res).catch((err: unknown) => {
     json(res, 500, { error: err instanceof Error ? err.message : String(err) });
@@ -101,25 +110,44 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     return;
   }
 
-  // Render a URL headlessly and return the transformed IR.
+  // Render a URL headlessly and return the transformed IR. One request can ask
+  // for several breakpoints, which come back as one document laid out in a row.
   if (url.pathname === '/render' && req.method === 'POST') {
     const body = JSON.parse(await readBody(req)) as {
       url: string;
       width?: number;
+      widths?: number[];
+      breakpoints?: { label: string; width: number }[];
       fullPage?: boolean;
       autoLayout?: boolean;
+      colorScheme?: 'light' | 'dark';
       cookies?: { name: string; value: string; domain: string }[];
     };
     if (!body.url) {
       json(res, 400, { error: 'url is required' });
       return;
     }
-    const raw = await renderUrl(body.url, {
-      ...(body.width !== undefined ? { width: body.width } : {}),
-      ...(body.fullPage !== undefined ? { fullPage: body.fullPage } : {}),
-      ...(body.cookies ? { cookies: body.cookies } : {}),
-    });
-    const { doc } = transformDocument(raw, { disableAutoLayout: body.autoLayout === false });
+
+    const requested =
+      body.breakpoints && body.breakpoints.length > 0
+        ? body.breakpoints
+        : body.widths && body.widths.length > 0
+          ? body.widths.map((w) => ({ label: labelFor(w), width: w }))
+          : [{ label: labelFor(body.width ?? 1440), width: body.width ?? 1440 }];
+
+    const captured = [];
+    for (const breakpoint of requested) {
+      const raw = await renderUrl(body.url, {
+        width: breakpoint.width,
+        ...(body.fullPage !== undefined ? { fullPage: body.fullPage } : {}),
+        ...(body.colorScheme ? { colorScheme: body.colorScheme } : {}),
+        ...(body.cookies ? { cookies: body.cookies } : {}),
+      });
+      const { doc } = transformDocument(raw, { disableAutoLayout: body.autoLayout === false });
+      captured.push({ doc, label: breakpoint.label, width: breakpoint.width });
+    }
+
+    const doc = combineDocuments(captured);
     store(doc);
     json(res, 200, doc);
     return;

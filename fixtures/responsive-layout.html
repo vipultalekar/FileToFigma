@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Responsive layout</title>
+    <style>
+      /*
+        Fluid, with real breakpoints: the sidebar drops below the content on
+        tablet and the card grid collapses to one column on mobile. This is the
+        fixture that proves a multi-breakpoint import captures three genuinely
+        different layouts rather than the same page three times.
+      */
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: Inter, system-ui, sans-serif; color: #0f172a; background: #f8fafc; }
+      .shell { display: flex; gap: 24px; padding: 32px; align-items: flex-start; }
+      .sidebar { width: 240px; flex: none; display: flex; flex-direction: column; gap: 8px;
+                 background: #0f172a; color: #e2e8f0; padding: 20px; border-radius: 12px; }
+      .sidebar a { color: #cbd5f5; text-decoration: none; padding: 6px 8px; border-radius: 6px; font-size: 14px; }
+      .main { flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+      h1 { margin: 0; font-size: 28px; }
+      .grid { display: flex; flex-wrap: wrap; gap: 16px; }
+      .card { flex: 1 1 260px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+              padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+      .card h2 { margin: 0; font-size: 16px; }
+      .card p { margin: 0; font-size: 14px; color: #475569; line-height: 1.5; }
+
+      @media (max-width: 1024px) {
+        .shell { flex-direction: column; }
+        .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
+      }
+      /* A real dark theme, so a dark capture is provably different. */
+      @media (prefers-color-scheme: dark) {
+        body { background: #020617; color: #e2e8f0; }
+        .card { background: #0f172a; border-color: #1e293b; }
+        .card p { color: #94a3b8; }
+        .sidebar { background: #1e293b; }
+      }
+
+      @media (max-width: 640px) {
+        .shell { padding: 16px; }
+        .card { flex: 1 1 100%; }
+        h1 { font-size: 22px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar" data-role="sidebar">
+        <a href="#overview">Overview</a>
+        <a href="#reports">Reports</a>
+        <a href="#billing">Billing</a>
+        <a href="#team">Team</a>
+      </aside>
+      <main class="main">
+        <h1>Responsive by construction</h1>
+        <section class="grid">
+          <article class="card"><h2>Three across</h2><p>On desktop these cards sit in one row.</p></article>
+          <article class="card"><h2>Two across</h2><p>On tablet the sidebar moves above the content.</p></article>
+          <article class="card"><h2>One across</h2><p>On mobile every card takes the full width.</p></article>
+          <article class="card"><h2>Still fluid</h2><p>No fixed body width anywhere on this page.</p></article>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

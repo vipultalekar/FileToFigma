@@ -59,8 +59,10 @@ figma.ui.onmessage = async (msg: Envelope | { t: string; [k: string]: unknown })
         }
         const doc = pending;
         pending = null;
+        const createStyles = Boolean((msg as Record<string, unknown>).createStyles);
         const { root, report } = await buildDocument(doc, {
           onProgress: (done, total, stage) => post({ t: 'progress', done, total, stage }),
+          createStyles,
         });
         lastRoot = root;
         post({ t: 'done', report });

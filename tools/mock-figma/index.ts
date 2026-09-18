@@ -10,12 +10,24 @@ export * from './render.js';
  * `uninstall()` restores whatever was there, which keeps tests isolated.
  */
 
+export interface MockStyle {
+  id: string;
+  name: string;
+  type: 'PAINT' | 'TEXT';
+  paints?: unknown[];
+  fontName?: MockFont;
+  fontSize?: number;
+  lineHeight?: unknown;
+  letterSpacing?: unknown;
+}
+
 export interface MockFigma {
   root: MockNode;
   created: MockNode[];
   images: { hash: string; bytes: Uint8Array }[];
   notifications: string[];
   messages: unknown[];
+  styles: MockStyle[];
   uninstall: () => void;
   /** Re-solve auto layout across the whole built tree. */
   solve: () => void;
@@ -47,6 +59,7 @@ export function installMockFigma(options: { fonts?: MockFont[] } = {}): MockFigm
   const images: { hash: string; bytes: Uint8Array }[] = [];
   const notifications: string[] = [];
   const messages: unknown[] = [];
+  const styles: MockStyle[] = [];
   loadedFonts.clear();
 
   const track = <T extends MockNode>(node: T): T => {
@@ -80,6 +93,16 @@ export function installMockFigma(options: { fonts?: MockFont[] } = {}): MockFigm
       n.type = 'FRAME';
       n.name = 'svg';
       return n;
+    },
+    createPaintStyle: () => {
+      const style: MockStyle = { id: `S:paint${styles.length + 1}`, name: '', type: 'PAINT' };
+      styles.push(style);
+      return style;
+    },
+    createTextStyle: () => {
+      const style: MockStyle = { id: `S:text${styles.length + 1}`, name: '', type: 'TEXT' };
+      styles.push(style);
+      return style;
     },
     createImage: (bytes: Uint8Array) => {
       const hash = `img${images.length + 1}`;
@@ -121,6 +144,7 @@ export function installMockFigma(options: { fonts?: MockFont[] } = {}): MockFigm
     images,
     notifications,
     messages,
+    styles,
     solve: () => {
       for (const child of page.children) solveLayout(child);
     },
