@@ -105,14 +105,22 @@ async function copyFromPage(payload: string): Promise<{ ok: boolean; error?: str
   return { ok: false, error: 'the page could not write to the clipboard' };
 }
 
+/**
+ * Chrome's extension messaging tops out well below the size of a heavy page's
+ * capture, and the failure is an opaque rejection rather than a useful error.
+ * Anything approaching the limit goes to the relay instead.
+ */
+const MESSAGE_LIMIT = 30 * 1024 * 1024;
+
 async function deliver(
   doc: IRDocument,
   transport: 'clipboard' | 'relay',
   copyHere: boolean,
 ): Promise<CaptureOutcome> {
   const payload = await encodePayload(doc);
+  const tooBigToMessage = !copyHere && payload.length > MESSAGE_LIMIT;
 
-  if (transport === 'relay') {
+  if (transport === 'relay' || tooBigToMessage) {
     const response = (await chrome.runtime.sendMessage({
       type: 'post-relay',
       doc,
@@ -120,6 +128,18 @@ async function deliver(
     if (response?.ok) {
       toast('Sent to the local relay. Open the Figma plugin and press Latest capture.');
       return { ok: true, bytes: payload.length, transport: 'relay' };
+    }
+    if (tooBigToMessage) {
+      const mb = (payload.length / 1024 / 1024).toFixed(0);
+      toast(
+        `This capture is ${mb}MB, too large for the clipboard. Start the local relay and try again.`,
+        'error',
+      );
+      return {
+        ok: false,
+        bytes: payload.length,
+        error: `capture is ${mb}MB; run the local relay (pnpm relay) and tick "Send to local relay"`,
+      };
     }
     toast(`Relay unavailable (${response?.error ?? 'no response'}), copying instead`, 'error');
   }

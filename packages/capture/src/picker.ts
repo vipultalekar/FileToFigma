@@ -105,6 +105,12 @@ export function startPicker(options: PickerOptions): PickerHandle {
   const onClick = (e: MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
+    // A click with no prior mousemove (keyboard activation, a very fast click,
+    // or a synthetic event) would otherwise do nothing at all.
+    if (!current) {
+      const under = doc.elementFromPoint(e.clientX, e.clientY);
+      if (under && under !== overlay && under !== label) current = under;
+    }
     if (!current) return;
     if (e.shiftKey) {
       selected.push(current);

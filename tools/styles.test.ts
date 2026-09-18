@@ -86,6 +86,103 @@ describe('collectStyleCandidates', () => {
   });
 });
 
+describe('style binding never destroys paints', () => {
+  /**
+   * Binding a style replaces a node's whole paints array. Binding one built
+   * from a single solid onto a node that stacks a gradient over a colour, or
+   * onto the fill of a node whose *stroke* supplied the colour, silently
+   * rewrites the design. These only bind where it is unambiguous.
+   */
+  const gradient = {
+    type: 'GRADIENT_LINEAR' as const,
+    stops: [
+      { position: 0, color: { r: 1, g: 0, b: 0, a: 1 } },
+      { position: 1, color: { r: 0, g: 0, b: 1, a: 1 } },
+    ],
+    transform: [
+      [1, 0, 0],
+      [0, 1, 0],
+    ] as [[number, number, number], [number, number, number]],
+  };
+
+  it('leaves a multi-fill node alone', async () => {
+    const layered = Array.from({ length: 4 }, (_, i) =>
+      frame({
+        rect: rect(0, i * 60, 200, 48),
+        name: `Layered ${i + 1}`,
+        meta: { tag: 'div', classes: [], testId: `layered-${i}` },
+        // A solid under a gradient: exactly what a hero section looks like.
+        fills: [brand, gradient],
+      }),
+    );
+    const ir = doc(frame({ rect: rect(0, 0, 200, 260), name: 'Page', children: layered }));
+    const { doc: transformed } = transformDocument(ir);
+    await buildDocument(transformed, { createStyles: true, minStyleUses: 3 });
+
+    // The style exists, but nothing was bound, so both paints survive.
+    expect(figmaMock.styles.some((s) => s.name.includes('Blue'))).toBe(true);
+    const built = figmaMock.created.filter((n: MockNode) => n.name.startsWith('layered-'));
+    expect(built).toHaveLength(4);
+    for (const node of built) {
+      expect(node.fillStyleId).toBe('');
+      expect(node.fills).toHaveLength(2);
+    }
+  });
+
+  it('binds a stroke colour to the stroke, never to the fill', async () => {
+    const outlined = Array.from({ length: 4 }, (_, i) =>
+      frame({
+        rect: rect(0, i * 60, 200, 48),
+        name: `Outlined ${i + 1}`,
+        meta: { tag: 'div', classes: [], testId: `outlined-${i}` },
+        fills: [solid(1, 1, 1)],
+        strokes: [{ paint: brand, weight: 1, align: 'INSIDE' }],
+      }),
+    );
+    const ir = doc(frame({ rect: rect(0, 0, 200, 260), name: 'Page', children: outlined }));
+    const { doc: transformed } = transformDocument(ir);
+    await buildDocument(transformed, { createStyles: true, minStyleUses: 3 });
+
+    const built = figmaMock.created.filter((n: MockNode) => n.name.startsWith('outlined-'));
+    expect(built).toHaveLength(4);
+    for (const node of built) {
+      expect(node.strokeStyleId).not.toBe('');
+      // The white fill must not have been replaced by the blue stroke colour.
+      expect(node.fills[0]).toMatchObject({ color: { r: 1, g: 1, b: 1 } });
+    }
+  });
+
+  it('does not flatten text that carries ranged formatting', async () => {
+    const font = (weight: number) => ({
+      family: 'Inter',
+      weight,
+      italic: false,
+      fallbackStack: [],
+      classification: 'sans-serif' as const,
+    });
+    const mixed = Array.from({ length: 4 }, (_, i) =>
+      text({
+        rect: rect(0, i * 30, 400, 24),
+        characters: 'Regular and bold together',
+        segments: [
+          { start: 0, end: 12, font: font(400), size: 16, color: solid(0, 0, 0) },
+          { start: 12, end: 25, font: font(700), size: 16, color: solid(0, 0, 0) },
+        ],
+      }),
+    );
+    const ir = doc(frame({ rect: rect(0, 0, 400, 130), name: 'Page', children: mixed }));
+    const { doc: transformed } = transformDocument(ir);
+    await buildDocument(transformed, { createStyles: true, minStyleUses: 3 });
+
+    const built = figmaMock.created.filter((n: MockNode) => n.type === 'TEXT');
+    expect(built).toHaveLength(4);
+    for (const node of built) {
+      expect(node.textStyleId).toBe('');
+      expect(node.fillStyleId).toBe('');
+    }
+  });
+});
+
 describe('applyStyles through the builder', () => {
   it('creates and binds colour and text styles when asked', async () => {
     const { doc: ir } = transformDocument(page());

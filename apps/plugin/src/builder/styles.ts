@@ -22,9 +22,21 @@ export interface StyleReport {
   texts: { name: string; uses: number }[];
 }
 
+/** Where a colour was seen, and whether binding a style there is safe. */
+interface ColorTarget {
+  nodeId: string;
+  kind: 'fill' | 'stroke';
+  /**
+   * False when the node paints more than one thing. Binding a style replaces
+   * the whole paints array, so a style built from one solid would wipe out the
+   * gradient or image stacked with it.
+   */
+  bindable: boolean;
+}
+
 interface ColorUse {
   paint: Paint & { type: 'SOLID' };
-  nodes: string[];
+  targets: ColorTarget[];
 }
 
 interface TextUse {
@@ -131,25 +143,38 @@ export function collectStyleCandidates(
   const colors = new Map<string, ColorUse>();
   const texts = new Map<string, TextUse>();
 
-  const noteColor = (paint: Paint, nodeId: string): void => {
+  const noteColor = (
+    paint: Paint,
+    nodeId: string,
+    kind: 'fill' | 'stroke',
+    bindable: boolean,
+  ): void => {
     if (paint.type !== 'SOLID') return;
     if (paint.opacity <= 0.01) return;
     const key = colorKey(paint);
+    const target: ColorTarget = { nodeId, kind, bindable };
     const entry = colors.get(key);
-    if (entry) entry.nodes.push(nodeId);
-    else colors.set(key, { paint, nodes: [nodeId] });
+    if (entry) entry.targets.push(target);
+    else colors.set(key, { paint, targets: [target] });
   };
 
   for (const node of walk(doc.root)) {
     if (isFrame(node)) {
-      for (const fill of node.fills) noteColor(fill, node.id);
-      for (const stroke of node.strokes) noteColor(stroke.paint, node.id);
+      for (const fill of node.fills) noteColor(fill, node.id, 'fill', node.fills.length === 1);
+      for (const stroke of node.strokes) {
+        noteColor(stroke.paint, node.id, 'stroke', node.strokes.length === 1);
+      }
     } else if (isImage(node)) {
-      for (const stroke of node.strokes) noteColor(stroke.paint, node.id);
+      // An image node's fill is the image; only its stroke is a candidate.
+      for (const stroke of node.strokes) {
+        noteColor(stroke.paint, node.id, 'stroke', node.strokes.length === 1);
+      }
     } else if (isText(node)) {
       const segment = node.segments[0];
-      if (segment) noteColor(segment.color, node.id);
-      const key = textKey(node);
+      // Ranged formatting means there is no single fill to bind.
+      const single = node.segments.length === 1;
+      if (segment) noteColor(segment.color, node.id, 'fill', single);
+      const key = single ? textKey(node) : null;
       if (key && segment?.font.resolved) {
         const entry = texts.get(key);
         if (entry) entry.nodes.push(node.id);
@@ -167,7 +192,7 @@ export function collectStyleCandidates(
   }
 
   const min = options.minUses ?? DEFAULT_MIN_USES;
-  for (const [key, use] of colors) if (use.nodes.length < min) colors.delete(key);
+  for (const [key, use] of colors) if (use.targets.length < min) colors.delete(key);
   for (const [key, use] of texts) if (use.nodes.length < min) texts.delete(key);
   return { colors, texts };
 }
@@ -192,18 +217,26 @@ export async function applyStyles(
     style.paints = [{ type: 'SOLID', color: use.paint.color, opacity: use.paint.opacity }];
 
     let applied = 0;
-    for (const nodeId of use.nodes) {
-      const node = byIrId.get(nodeId);
+    for (const target of use.targets) {
+      // The style is still worth creating for an unbindable use: it belongs in
+      // the file even where attaching it would destroy the other paints.
+      if (!target.bindable) continue;
+      const node = byIrId.get(target.nodeId);
       if (!node) continue;
       try {
-        if (node.type === 'TEXT') {
-          await (node as TextNode).setFillStyleIdAsync(style.id);
-        } else if ('fillStyleId' in node) {
-          await (node as SceneNode & MinimalFillsMixin).setFillStyleIdAsync(style.id);
+        if (target.kind === 'stroke') {
+          if ('strokeStyleId' in node) {
+            await (node as SceneNode & MinimalStrokesMixin).setStrokeStyleIdAsync(style.id);
+            applied++;
+          }
+          continue;
         }
-        applied++;
+        if ('fillStyleId' in node) {
+          await (node as SceneNode & MinimalFillsMixin).setFillStyleIdAsync(style.id);
+          applied++;
+        }
       } catch {
-        // A node whose fill the style does not match is simply left alone.
+        // A node that refuses the style keeps the paints it already has.
       }
     }
     report.colors.push({ name, uses: applied });

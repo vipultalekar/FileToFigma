@@ -4,7 +4,7 @@ import { WarningSink } from '@web2figma/shared';
 import { fontKey } from '@web2figma/transform';
 import { AssetStore, type CorsFetcher } from './images.js';
 import { preparePage, type PrepareOptions } from './prepare.js';
-import { walkElement, type WalkContext } from './walk.js';
+import { renderedChildren, walkElement, type WalkContext } from './walk.js';
 
 export * from './prepare.js';
 export * from './images.js';
@@ -181,7 +181,9 @@ function collectBackgroundUrls(root: Element, win: Window): string[] {
         else if (url) urls.add(url);
       }
     }
-    for (const child of Array.from(el.children)) visit(child);
+    // Follow the rendered tree: a background image declared inside a shadow
+    // root is invisible to el.children, and would be dropped at build time.
+    for (const child of renderedChildren(el)) visit(child);
   };
   visit(root);
   return [...urls];

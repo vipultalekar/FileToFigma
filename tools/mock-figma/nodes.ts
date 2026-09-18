@@ -65,6 +65,7 @@ export class MockNode {
   /** Style bindings, so tests can assert what the styles pass applied. */
   fillStyleId = '';
   textStyleId = '';
+  strokeStyleId = '';
 
   async setFillStyleIdAsync(id: string): Promise<void> {
     this.fillStyleId = id;
@@ -72,6 +73,10 @@ export class MockNode {
 
   async setTextStyleIdAsync(id: string): Promise<void> {
     this.textStyleId = id;
+  }
+
+  async setStrokeStyleIdAsync(id: string): Promise<void> {
+    this.strokeStyleId = id;
   }
 
   appendChild(child: MockNode): void {

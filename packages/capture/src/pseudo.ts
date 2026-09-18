@@ -2,7 +2,7 @@ import type { FrameNode, IRNode, Rect, TextNode } from '@web2figma/ir';
 import { defaultLayout } from '@web2figma/ir';
 import { backgroundToFills, cornerRadius, solidFromCss } from '@web2figma/transform';
 import { buildSegment, buildTextStyle } from './text.js';
-import type { WalkContext } from './walk.js';
+import { renderedChildren, type WalkContext } from './walk.js';
 
 /**
  * ::before and ::after synthesis (PRD section 5).
@@ -120,7 +120,7 @@ function build(
   if (text === null) return [];
   if (pseudo.display === 'none' || parseFloat(pseudo.opacity) === 0) return [];
 
-  const childRects = Array.from(el.children).map((child) => {
+  const childRects = renderedChildren(el).map((child) => {
     const r = child.getBoundingClientRect();
     return { x: r.left + ctx.origin.x, y: r.top + ctx.origin.y, w: r.width, h: r.height };
   });
