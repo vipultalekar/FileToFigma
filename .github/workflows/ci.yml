@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: |
+          pnpm --filter @web2figma/plugin typecheck
+          pnpm --filter @web2figma/extension typecheck
+          pnpm --filter @web2figma/relay typecheck
+          npx tsc -b packages/ir packages/shared packages/transform packages/capture packages/image-pipeline
+      - name: Unit tests
+        run: pnpm test
+      - name: Build plugin and extension
+        run: |
+          pnpm plugin:build
+          pnpm ext:build
+
+  fixtures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: npx playwright install --with-deps chromium
+      - name: Golden fixtures (snapshot, visual diff, editability)
+        env:
+          FIXTURES: '1'
+        run: npx vitest run tools/fixtures.test.ts tools/report.test.ts
+      - name: Upload visual diffs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diffs
+          path: tools/out
