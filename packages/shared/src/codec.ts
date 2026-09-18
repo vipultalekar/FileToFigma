@@ -40,21 +40,25 @@ export function base64ToBytes(b64: string): Uint8Array {
   return out;
 }
 
+/**
+ * The web-standard gzip streams exist in the browser, the plugin iframe and
+ * modern Node, but under types that only the DOM lib declares. This package
+ * compiles without the DOM lib (it also runs in the Figma sandbox), so the
+ * globals are reached through a minimal structural type.
+ */
+interface StreamGlobals {
+  CompressionStream: new (format: string) => unknown;
+  DecompressionStream: new (format: string) => unknown;
+  Response: new (body: unknown) => { arrayBuffer(): Promise<ArrayBuffer> };
+  Blob: new (parts: unknown[]) => { stream(): { pipeThrough(t: unknown): unknown } };
+}
+
 async function streamThrough(bytes: Uint8Array, kind: 'gzip' | 'gunzip'): Promise<Uint8Array> {
-  const g = globalThis as unknown as {
-    CompressionStream: new (f: string) => ReadableWritablePair<Uint8Array, Uint8Array>;
-    DecompressionStream: new (f: string) => ReadableWritablePair<Uint8Array, Uint8Array>;
-    Response: new (b: BodyInit) => { arrayBuffer(): Promise<ArrayBuffer> };
-    Blob: new (parts: BlobPart[]) => Blob;
-  };
+  const g = globalThis as unknown as StreamGlobals;
   const transform =
     kind === 'gzip' ? new g.CompressionStream('gzip') : new g.DecompressionStream('gzip');
-  const stream = new (globalThis as unknown as { Blob: new (p: BlobPart[]) => Blob }).Blob([
-    bytes as unknown as BlobPart,
-  ])
-    .stream()
-    .pipeThrough(transform as unknown as ReadableWritablePair<Uint8Array, Uint8Array>);
-  const buf = await new g.Response(stream as unknown as BodyInit).arrayBuffer();
+  const piped = new g.Blob([bytes]).stream().pipeThrough(transform);
+  const buf = await new g.Response(piped).arrayBuffer();
   return new Uint8Array(buf);
 }
 

@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "paths": {
+      "@web2figma/ir": ["../ir/src/index.ts"],
+      "@web2figma/shared": ["../shared/src/index.ts"],
+      "@web2figma/transform": ["../transform/src/index.ts"]
+    }
+  },
+  "include": ["src"],
+  "references": [{ "path": "../ir" }, { "path": "../shared" }, { "path": "../transform" }]
+}

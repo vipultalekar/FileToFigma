@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "composite": false,
+    "declaration": false,
+    "noEmit": true,
+    "types": ["@figma/plugin-typings"],
+    "paths": {
+      "@web2figma/ir": ["../../packages/ir/src/index.ts"],
+      "@web2figma/shared": ["../../packages/shared/src/index.ts"],
+      "@web2figma/transform": ["../../packages/transform/src/index.ts"],
+      "@web2figma/capture": ["../../packages/capture/src/index.ts"]
+    }
+  },
+  "include": ["src"]
+}

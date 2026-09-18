@@ -1,0 +1,18 @@
+{
+  "name": "@web2figma/capture",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --emitDeclarationOnly --outDir dist"
+  },
+  "dependencies": {
+    "@web2figma/ir": "workspace:*",
+    "@web2figma/shared": "workspace:*",
+    "@web2figma/transform": "workspace:*"
+  }
+}

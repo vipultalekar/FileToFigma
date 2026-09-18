@@ -1,0 +1,13 @@
+{
+  "name": "Web2Figma",
+  "id": "web2figma-local-dev",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["http://localhost:3579", "https://localhost:3579"],
+    "reasoning": "Fetches the captured page IR from the local relay (T2 transport). No page content leaves the machine."
+  }
+}

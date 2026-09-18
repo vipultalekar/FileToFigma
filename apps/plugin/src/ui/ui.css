@@ -1,0 +1,280 @@
+:root {
+  --bg: var(--figma-color-bg, #ffffff);
+  --fg: var(--figma-color-text, #1e1e1e);
+  --muted: var(--figma-color-text-secondary, #6b7280);
+  --line: var(--figma-color-border, #e5e7eb);
+  --accent: var(--figma-color-bg-brand, #3b82f6);
+  --danger: #dc2626;
+  --warn: #b45309;
+  color-scheme: light dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font: 12px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.logo {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 8px 12px 0;
+}
+
+.tab {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+}
+
+.tab.active {
+  color: var(--fg);
+  background: var(--line);
+  font-weight: 500;
+}
+
+main {
+  flex: 1;
+  overflow: auto;
+  padding: 12px;
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+}
+
+.warn {
+  margin: 0;
+  color: var(--warn);
+}
+
+textarea {
+  min-height: 92px;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+}
+
+textarea,
+input[type='url'],
+input[type='number'],
+input[type='text'] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.dropzone {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 500;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+button.link {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.status.error {
+  color: var(--danger);
+}
+
+.status.done {
+  color: var(--fg);
+}
+
+.bar {
+  flex: 1;
+  height: 4px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 120ms linear;
+}
+
+.report {
+  max-height: 44vh;
+  overflow: auto;
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+  gap: 8px;
+}
+
+.report h3 {
+  margin: 6px 0 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.report dl {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.report dl div {
+  display: flex;
+  gap: 8px;
+}
+
+.report dt {
+  min-width: 84px;
+  color: var(--muted);
+}
+
+.report dd {
+  margin: 0;
+}
+
+.report table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report td {
+  padding: 2px 0;
+  color: var(--muted);
+}
+
+.warnings {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.warnings li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pill {
+  border-radius: 999px;
+  padding: 1px 6px;
+  font-size: 10px;
+  background: var(--line);
+}
+
+.pill.dropped {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.pill.degraded {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.count {
+  color: var(--muted);
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-top: 1px solid var(--line);
+}
+
+.disclosure {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--accent);
+  text-align: left;
+}

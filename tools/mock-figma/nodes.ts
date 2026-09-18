@@ -1,0 +1,180 @@
+/**
+ * A mock of the Figma Plugin API, good enough to run the real builder in plain
+ * Node (PRD section 15: "run the builder against a mock Figma API").
+ *
+ * It implements the parts the builder touches, and — critically — an auto
+ * layout solver, so a test can widen the root frame and assert that children
+ * actually reflow. Without that, an Auto Layout assertion proves nothing.
+ */
+
+export type MockPaint = Record<string, unknown> & { type: string };
+
+export interface MockFont {
+  family: string;
+  style: string;
+}
+
+let idCounter = 0;
+
+export class MockNode {
+  readonly id = `mock-${++idCounter}`;
+  type = 'FRAME';
+  name = '';
+  x = 0;
+  y = 0;
+  width = 0;
+  height = 0;
+  opacity = 1;
+  visible = true;
+  rotation = 0;
+  blendMode = 'NORMAL';
+  fills: MockPaint[] = [];
+  strokes: MockPaint[] = [];
+  strokeWeight = 1;
+  strokeAlign = 'INSIDE';
+  dashPattern: number[] = [];
+  effects: Record<string, unknown>[] = [];
+  clipsContent = false;
+  topLeftRadius = 0;
+  topRightRadius = 0;
+  bottomRightRadius = 0;
+  bottomLeftRadius = 0;
+  parent: MockNode | null = null;
+  children: MockNode[] = [];
+  constraints = { horizontal: 'MIN', vertical: 'MIN' };
+
+  // Auto layout
+  layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL' = 'NONE';
+  layoutWrap: 'NO_WRAP' | 'WRAP' = 'NO_WRAP';
+  paddingTop = 0;
+  paddingRight = 0;
+  paddingBottom = 0;
+  paddingLeft = 0;
+  itemSpacing = 0;
+  counterAxisSpacing: number | null = null;
+  primaryAxisAlignItems: 'MIN' | 'CENTER' | 'MAX' | 'SPACE_BETWEEN' = 'MIN';
+  counterAxisAlignItems: 'MIN' | 'CENTER' | 'MAX' | 'BASELINE' = 'MIN';
+  primaryAxisSizingMode: 'FIXED' | 'AUTO' = 'FIXED';
+  counterAxisSizingMode: 'FIXED' | 'AUTO' = 'FIXED';
+  layoutPositioning: 'AUTO' | 'ABSOLUTE' = 'AUTO';
+  layoutSizingHorizontal: 'FIXED' | 'HUG' | 'FILL' = 'FIXED';
+  layoutSizingVertical: 'FIXED' | 'HUG' | 'FILL' = 'FIXED';
+
+  private pluginData: Record<string, string> = {};
+
+  appendChild(child: MockNode): void {
+    child.parent?.removeChild(child);
+    child.parent = this;
+    this.children.push(child);
+  }
+
+  insertChild(index: number, child: MockNode): void {
+    child.parent?.removeChild(child);
+    child.parent = this;
+    this.children.splice(index, 0, child);
+  }
+
+  removeChild(child: MockNode): void {
+    const i = this.children.indexOf(child);
+    if (i >= 0) this.children.splice(i, 1);
+  }
+
+  remove(): void {
+    this.parent?.removeChild(this);
+    this.parent = null;
+  }
+
+  resize(w: number, h: number): void {
+    this.width = Math.max(0.01, w);
+    this.height = Math.max(0.01, h);
+  }
+
+  resizeWithoutConstraints(w: number, h: number): void {
+    this.resize(w, h);
+  }
+
+  setPluginData(key: string, value: string): void {
+    this.pluginData[key] = value;
+  }
+
+  getPluginData(key: string): string {
+    return this.pluginData[key] ?? '';
+  }
+
+  async exportAsync(): Promise<Uint8Array> {
+    return new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+  }
+}
+
+export class MockTextNode extends MockNode {
+  override type = 'TEXT';
+  characters = '';
+  fontName: MockFont = { family: 'Inter', style: 'Regular' };
+  fontSize = 16;
+  textAlignHorizontal = 'LEFT';
+  textAlignVertical = 'TOP';
+  textCase = 'ORIGINAL';
+  textDecoration = 'NONE';
+  textAutoResize: 'NONE' | 'HEIGHT' | 'WIDTH_AND_HEIGHT' = 'NONE';
+  textTruncation: 'DISABLED' | 'ENDING' = 'DISABLED';
+  maxLines: number | null = null;
+  letterSpacing: Record<string, unknown> = { unit: 'PIXELS', value: 0 };
+  lineHeight: Record<string, unknown> = { unit: 'AUTO' };
+  ranges: {
+    start: number;
+    end: number;
+    font?: MockFont;
+    size?: number;
+    fills?: MockPaint[];
+    decoration?: string;
+    link?: { type: string; value: string };
+  }[] = [];
+
+  private range(start: number, end: number) {
+    let entry = this.ranges.find((r) => r.start === start && r.end === end);
+    if (!entry) {
+      entry = { start, end };
+      this.ranges.push(entry);
+    }
+    return entry;
+  }
+
+  setRangeFontName(start: number, end: number, font: MockFont): void {
+    if (!loadedFonts.has(fontKeyOf(font))) {
+      throw new Error(`font ${font.family} ${font.style} is not loaded`);
+    }
+    this.range(start, end).font = font;
+  }
+
+  setRangeFontSize(start: number, end: number, size: number): void {
+    this.range(start, end).size = size;
+  }
+
+  setRangeFills(start: number, end: number, fills: MockPaint[]): void {
+    this.range(start, end).fills = fills;
+  }
+
+  setRangeTextDecoration(start: number, end: number, decoration: string): void {
+    this.range(start, end).decoration = decoration;
+  }
+
+  setRangeHyperlink(start: number, end: number, link: { type: string; value: string }): void {
+    this.range(start, end).link = link;
+  }
+
+  /** Crude but deterministic text metrics: enough to test reflow. */
+  measure(width: number): { w: number; h: number } {
+    const charWidth = this.fontSize * 0.55;
+    const lineHeightPx =
+      this.lineHeight.unit === 'PIXELS' ? (this.lineHeight.value as number) : this.fontSize * 1.4;
+    const perLine = Math.max(1, Math.floor(width / charWidth));
+    const lines = Math.max(1, Math.ceil(this.characters.length / perLine));
+    return { w: Math.min(width, this.characters.length * charWidth), h: lines * lineHeightPx };
+  }
+}
+
+export const loadedFonts = new Set<string>();
+
+export function fontKeyOf(font: MockFont): string {
+  return `${font.family}|${font.style}`;
+}
