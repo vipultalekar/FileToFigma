@@ -110,7 +110,38 @@ export async function captureDocument(
     if (!result.node) throw new Error('capture produced no nodes');
 
     const rootNode = result.node;
-    if (!isWholeDocument) {
+    if (isWholeDocument) {
+      // The root frame has to cover the whole *document*, not the <html> border
+      // box (PRD section 5, step 6). On any page with `html { height: 100% }`
+      // those differ by the entire scroll length, and since the root rect is
+      // also the pruning boundary, taking the border box silently deleted
+      // everything below the fold.
+      //
+      // scrollHeight alone is not the answer either: it never reports less than
+      // the viewport, which would pad a short page with dead space. The honest
+      // height is the taller of the element box and what was actually captured.
+      // The extent has to come from the whole tree, not the direct children:
+      // a body with `height: 100%` is viewport-tall while its own sections
+      // overflow it by thousands of pixels.
+      let contentBottom = 0;
+      let contentRight = 0;
+      for (const node of walk(rootNode)) {
+        contentBottom = Math.max(contentBottom, node.rect.y + node.rect.h);
+        contentRight = Math.max(contentRight, node.rect.x + node.rect.w);
+      }
+      rootNode.rect = {
+        x: 0,
+        y: 0,
+        w: Math.max(rootNode.rect.w, contentRight),
+        h: Math.max(rootNode.rect.h, contentBottom),
+      };
+      if (rootNode.kind === 'frame' && rootNode.clip) {
+        // html/body commonly carry `overflow-x: hidden`, which would clip the
+        // whole import to the first viewport once it reaches Figma.
+        rootNode.clip = false;
+        warnings.info(rootNode.id, 'overflow', 'root clipping removed so the full page is visible');
+      }
+    } else {
       // Element picking rebases the root to the origin (PRD section 5).
       rootNode.rect = { ...rootNode.rect, x: bounds.x, y: bounds.y };
     }

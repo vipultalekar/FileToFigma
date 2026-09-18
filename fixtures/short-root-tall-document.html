@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Short root, tall document</title>
+    <style>
+      /*
+        The shape that broke real captures: <html> has a viewport-height box
+        while the document scrolls far past it, which is what any page with
+        `html { height: 100% }` plus a sticky header does. The root frame has to
+        come from scrollHeight, not from the html border box, or everything
+        below the fold is pruned as "outside the capture rect".
+      */
+      html { height: 100%; overflow-x: hidden; }
+      body { margin: 0; height: 100%; width: 1200px; font-family: Inter, system-ui, sans-serif; color: #111827; }
+      header { position: sticky; top: 0; height: 64px; display: flex; align-items: center; padding: 0 32px; background: #111827; color: #fff; font-weight: 600; }
+      section { padding: 96px 32px; border-bottom: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 10px; }
+      section:nth-child(even) { background: #f9fafb; }
+      h2 { margin: 0; font-size: 22px; }
+      p { margin: 0; font-size: 15px; line-height: 1.6; color: #4b5563; max-width: 720px; }
+    </style>
+  </head>
+  <body>
+    <header>Below the fold is still part of the page</header>
+    <section><h2>Section one</h2><p>This one sits inside the first viewport, so a broken capture keeps it.</p></section>
+    <section><h2>Section two</h2><p>This one starts around 300px down, which is where the old capture stopped seeing things.</p></section>
+    <section><h2>Section three</h2><p>Everything from here on was dropped entirely: no text, no frames, no fills.</p></section>
+    <section><h2>Section four</h2><p>A real marketing page has a dozen of these and the import came back nearly empty.</p></section>
+    <section><h2>Section five</h2><p>The regression test asserts that the text in this section survives the round trip.</p></section>
+    <section><h2>Section six</h2><p>And that the root frame is as tall as the document, not as tall as the viewport.</p></section>
+    <section><h2>Section 7</h2><p>Deep content number 7, far below the fold, which a viewport-sized root frame throws away.</p></section>
+    <section><h2>Section 8</h2><p>Deep content number 8, far below the fold, which a viewport-sized root frame throws away.</p></section>
+    <section><h2>Section 9</h2><p>Deep content number 9, far below the fold, which a viewport-sized root frame throws away.</p></section>
+    <section><h2>Section 10</h2><p>Deep content number 10, far below the fold, which a viewport-sized root frame throws away.</p></section>
+    <section><h2>Section 11</h2><p>Deep content number 11, far below the fold, which a viewport-sized root frame throws away.</p></section>
+    <section><h2>Section 12</h2><p>Deep content number 12, far below the fold, which a viewport-sized root frame throws away.</p></section>
+    <section><h2>Section 13</h2><p>Deep content number 13, far below the fold, which a viewport-sized root frame throws away.</p></section>
+    <section><h2>Section 14</h2><p>Deep content number 14, far below the fold, which a viewport-sized root frame throws away.</p></section>
+  </body>
+</html>

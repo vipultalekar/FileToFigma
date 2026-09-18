@@ -1,0 +1,1312 @@
+{
+  "version": 1,
+  "root": {
+    "kind": "frame",
+    "name": "Below the fold is still...",
+    "rect": [
+      0,
+      0,
+      1200,
+      3662
+    ],
+    "layout": {
+      "mode": "VERTICAL",
+      "reason": "single",
+      "itemSpacing": 0
+    },
+    "children": [
+      {
+        "kind": "frame",
+        "name": "Below the fold is still...",
+        "rect": [
+          0,
+          0,
+          1200,
+          900
+        ],
+        "layout": {
+          "mode": "VERTICAL",
+          "reason": "geometric",
+          "itemSpacing": 0
+        },
+        "children": [
+          {
+            "kind": "frame",
+            "name": "Header",
+            "rect": [
+              0,
+              0,
+              1200,
+              64
+            ],
+            "layout": {
+              "mode": "HORIZONTAL",
+              "reason": "flex",
+              "itemSpacing": 0
+            },
+            "children": [
+              {
+                "kind": "text",
+                "name": "Below the fold is still...",
+                "rect": [
+                  32,
+                  22,
+                  272,
+                  21
+                ],
+                "characters": "Below the fold is still part of the page"
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section",
+            "rect": [
+              0,
+              64,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section one",
+                    "rect": [
+                      0,
+                      0,
+                      121,
+                      30
+                    ],
+                    "characters": "Section one"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "This one sits inside th...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "This one sits inside th...",
+                    "rect": [
+                      0,
+                      2,
+                      438,
+                      20
+                    ],
+                    "characters": "This one sits inside the first viewport, so a broken capture keeps it."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 2",
+            "rect": [
+              0,
+              321,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section two",
+                    "rect": [
+                      0,
+                      0,
+                      122,
+                      30
+                    ],
+                    "characters": "Section two"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "This one starts around ...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "This one starts around ...",
+                    "rect": [
+                      0,
+                      2,
+                      595,
+                      20
+                    ],
+                    "characters": "This one starts around 300px down, which is where the old capture stopped seeing things."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 3",
+            "rect": [
+              0,
+              578,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section three",
+                    "rect": [
+                      0,
+                      0,
+                      137,
+                      30
+                    ],
+                    "characters": "Section three"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Everything from here on...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Everything from here on...",
+                    "rect": [
+                      0,
+                      2,
+                      485,
+                      20
+                    ],
+                    "characters": "Everything from here on was dropped entirely: no text, no frames, no fills."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 4",
+            "rect": [
+              0,
+              835,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section four",
+                    "rect": [
+                      0,
+                      0,
+                      126,
+                      30
+                    ],
+                    "characters": "Section four"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "A real marketing page h...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "A real marketing page h...",
+                    "rect": [
+                      0,
+                      2,
+                      558,
+                      20
+                    ],
+                    "characters": "A real marketing page has a dozen of these and the import came back nearly empty."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 5",
+            "rect": [
+              0,
+              1092,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section five",
+                    "rect": [
+                      0,
+                      0,
+                      121,
+                      30
+                    ],
+                    "characters": "Section five"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "The regression test ass...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "The regression test ass...",
+                    "rect": [
+                      0,
+                      2,
+                      510,
+                      20
+                    ],
+                    "characters": "The regression test asserts that the text in this section survives the round trip."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 6",
+            "rect": [
+              0,
+              1349,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section six",
+                    "rect": [
+                      0,
+                      0,
+                      111,
+                      30
+                    ],
+                    "characters": "Section six"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "And that the root frame...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "And that the root frame...",
+                    "rect": [
+                      0,
+                      2,
+                      509,
+                      20
+                    ],
+                    "characters": "And that the root frame is as tall as the document, not as tall as the viewport."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 7",
+            "rect": [
+              0,
+              1606,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section 7",
+                    "rect": [
+                      0,
+                      0,
+                      95,
+                      30
+                    ],
+                    "characters": "Section 7"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Deep content number 7, ...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Deep content number 7, ...",
+                    "rect": [
+                      0,
+                      2,
+                      605,
+                      20
+                    ],
+                    "characters": "Deep content number 7, far below the fold, which a viewport-sized root frame throws away."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 8",
+            "rect": [
+              0,
+              1863,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section 8",
+                    "rect": [
+                      0,
+                      0,
+                      95,
+                      30
+                    ],
+                    "characters": "Section 8"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Deep content number 8, ...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Deep content number 8, ...",
+                    "rect": [
+                      0,
+                      2,
+                      605,
+                      20
+                    ],
+                    "characters": "Deep content number 8, far below the fold, which a viewport-sized root frame throws away."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 9",
+            "rect": [
+              0,
+              2120,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section 9",
+                    "rect": [
+                      0,
+                      0,
+                      95,
+                      30
+                    ],
+                    "characters": "Section 9"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Deep content number 9, ...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Deep content number 9, ...",
+                    "rect": [
+                      0,
+                      2,
+                      605,
+                      20
+                    ],
+                    "characters": "Deep content number 9, far below the fold, which a viewport-sized root frame throws away."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 10",
+            "rect": [
+              0,
+              2377,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section 10",
+                    "rect": [
+                      0,
+                      0,
+                      108,
+                      30
+                    ],
+                    "characters": "Section 10"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Deep content number 10,...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Deep content number 10,...",
+                    "rect": [
+                      0,
+                      2,
+                      613,
+                      20
+                    ],
+                    "characters": "Deep content number 10, far below the fold, which a viewport-sized root frame throws away."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 11",
+            "rect": [
+              0,
+              2634,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section 11",
+                    "rect": [
+                      0,
+                      0,
+                      108,
+                      30
+                    ],
+                    "characters": "Section 11"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Deep content number 11,...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Deep content number 11,...",
+                    "rect": [
+                      0,
+                      2,
+                      613,
+                      20
+                    ],
+                    "characters": "Deep content number 11, far below the fold, which a viewport-sized root frame throws away."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 12",
+            "rect": [
+              0,
+              2891,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section 12",
+                    "rect": [
+                      0,
+                      0,
+                      108,
+                      30
+                    ],
+                    "characters": "Section 12"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Deep content number 12,...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Deep content number 12,...",
+                    "rect": [
+                      0,
+                      2,
+                      613,
+                      20
+                    ],
+                    "characters": "Deep content number 12, far below the fold, which a viewport-sized root frame throws away."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 13",
+            "rect": [
+              0,
+              3148,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section 13",
+                    "rect": [
+                      0,
+                      0,
+                      108,
+                      30
+                    ],
+                    "characters": "Section 13"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Deep content number 13,...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Deep content number 13,...",
+                    "rect": [
+                      0,
+                      2,
+                      613,
+                      20
+                    ],
+                    "characters": "Deep content number 13, far below the fold, which a viewport-sized root frame throws away."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Section 14",
+            "rect": [
+              0,
+              3405,
+              1200,
+              257
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 10
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 2",
+                "rect": [
+                  32,
+                  96,
+                  1136,
+                  30
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Section 14",
+                    "rect": [
+                      0,
+                      0,
+                      108,
+                      30
+                    ],
+                    "characters": "Section 14"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Deep content number 14,...",
+                "rect": [
+                  32,
+                  136,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Deep content number 14,...",
+                    "rect": [
+                      0,
+                      2,
+                      613,
+                      20
+                    ],
+                    "characters": "Deep content number 14, far below the fold, which a viewport-sized root frame throws away."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  0,
+                  256,
+                  1200,
+                  1
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": []
+}

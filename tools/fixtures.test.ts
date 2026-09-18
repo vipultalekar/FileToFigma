@@ -57,6 +57,7 @@ const FIXTURES: Record<string, Expectation> = {
   'mixed-inline-text.html': { coverage: 0.5 },
   'dense-dashboard.html': { coverage: 0.7, visualBudget: 0.12 },
   'unsupported-css.html': { warns: ['clip-path'], skipVisual: true },
+  'short-root-tall-document.html': { coverage: 0.5 },
 };
 
 describe.each(Object.entries(FIXTURES))('fixture %s', (name, expectation) => {
@@ -129,6 +130,42 @@ describe.each(Object.entries(FIXTURES))('fixture %s', (name, expectation) => {
     },
     120_000,
   );
+});
+
+describe('regression: the page below the fold', () => {
+  /**
+   * A viewport-sized root frame deleted everything below the first screen:
+   * the root rect doubles as the pruning boundary, so taking the <html> border
+   * box instead of the document scroll size silently dropped most of the page
+   * and then clipped what was left. Found from a real import that came back as
+   * an empty white frame.
+   */
+  it('sizes the root to the document and keeps deep content', async () => {
+    figmaMock = installMockFigma();
+    try {
+      const captured = await captureFixture('short-root-tall-document.html');
+      // The fixture's <html> box is the 900px viewport; the document is far taller.
+      expect(captured.height).toBeGreaterThan(3000);
+      expect(captured.doc.root.rect.h).toBe(captured.height);
+
+      const { doc, stats } = transformDocument(captured.doc);
+      expect(stats.nodesOut).toBe(stats.nodesIn);
+
+      const texts = [...walk(doc.root)]
+        .filter(isText)
+        .map((t) => t.characters);
+      expect(texts.some((t) => t.includes('Section 14'))).toBe(true);
+      expect(texts.some((t) => t.includes('Section one'))).toBe(true);
+
+      // html { overflow-x: hidden } must not clip the whole import.
+      expect(isFrame(doc.root) && doc.root.clip).toBe(false);
+
+      const { root } = await buildDocument(doc);
+      expect(root.height).toBeGreaterThan(3000);
+    } finally {
+      figmaMock.uninstall();
+    }
+  }, 120_000);
 });
 
 describe('performance budgets (PRD section 11)', () => {
