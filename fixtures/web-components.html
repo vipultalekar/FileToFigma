@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Web components</title>
+    <style>
+      body { margin: 0; width: 900px; font-family: Inter, system-ui, sans-serif; background: #f8fafc; color: #0f172a; }
+      .page { display: flex; flex-direction: column; gap: 24px; padding: 40px; }
+      h1 { margin: 0; font-size: 26px; }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>Rendered by shadow roots</h1>
+
+      <!-- Open shadow root: everything visible here lives in the shadow tree. -->
+      <x-card>
+        <span slot="title">Slotted heading</span>
+        <p slot="body">This paragraph is light DOM, projected into the card through a slot.</p>
+      </x-card>
+
+      <x-badge></x-badge>
+
+      <!-- Closed shadow root: unreadable from a content script, must be reported. -->
+      <x-sealed></x-sealed>
+    </div>
+
+    <script>
+      customElements.define(
+        'x-card',
+        class extends HTMLElement {
+          connectedCallback() {
+            const root = this.attachShadow({ mode: 'open' });
+            root.innerHTML = `
+              <style>
+                .card { display: flex; flex-direction: column; gap: 10px; padding: 20px;
+                        background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; }
+                .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; }
+                ::slotted([slot='title']) { font-size: 20px; font-weight: 600; }
+                ::slotted([slot='body']) { margin: 0; color: #475569; line-height: 1.6; }
+              </style>
+              <div class="card">
+                <div class="label">Shadow card</div>
+                <slot name="title"></slot>
+                <slot name="body"></slot>
+                <div class="label">Footer drawn inside the shadow root</div>
+              </div>
+            `;
+          }
+        },
+      );
+
+      customElements.define(
+        'x-badge',
+        class extends HTMLElement {
+          connectedCallback() {
+            const root = this.attachShadow({ mode: 'open' });
+            root.innerHTML = `
+              <style>
+                .badge { display: inline-block; padding: 6px 12px; border-radius: 999px;
+                         background: #dbeafe; color: #1d4ed8; font-weight: 600; font-size: 13px; }
+              </style>
+              <span class="badge">Open shadow root</span>
+            `;
+          }
+        },
+      );
+
+      customElements.define(
+        'x-sealed',
+        class extends HTMLElement {
+          connectedCallback() {
+            const root = this.attachShadow({ mode: 'closed' });
+            root.innerHTML = `
+              <div style="padding:16px;background:#fee2e2;color:#991b1b;border-radius:8px">
+                Closed shadow root, invisible to the capture
+              </div>
+            `;
+          }
+        },
+      );
+    </script>
+  </body>
+</html>

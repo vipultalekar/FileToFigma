@@ -77,15 +77,55 @@ function hasVisibleText(el: Element): boolean {
   return (el.textContent ?? '').trim().length > 0;
 }
 
+/**
+ * The children the browser actually paints, which is not the same list as
+ * `el.children` once web components are involved:
+ *
+ *  - a shadow host renders its shadow tree, not its light DOM children;
+ *  - a <slot> inside that shadow tree renders the light DOM nodes assigned to
+ *    it, at the slot's position.
+ *
+ * Walking `el.children` on a shadow host therefore captures nothing at all,
+ * which is why a page built from web components used to import as an empty
+ * frame. Closed shadow roots stay invisible: the DOM gives a content script no
+ * way in, and the subtree is reported as a `dropped` warning by the caller.
+ */
+export function renderedChildren(el: Element): Element[] {
+  const shadow = (el as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot;
+  if (shadow) return Array.from(shadow.children);
+
+  if (el.tagName.toLowerCase() === 'slot') {
+    const slot = el as HTMLSlotElement;
+    const assigned = slot.assignedElements?.({ flatten: true }) ?? [];
+    // An empty slot falls back to its own children, exactly as the browser does.
+    return assigned.length > 0 ? [...assigned] : Array.from(el.children);
+  }
+
+  return Array.from(el.children);
+}
+
+/** True when the element hides a subtree we have no way to read. */
+function hasClosedShadowRoot(el: Element): boolean {
+  const tag = el.tagName.toLowerCase();
+  if (!tag.includes('-')) return false;
+  const shadow = (el as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot;
+  // A custom element with no reachable shadow root and no light children is
+  // almost always a closed root rendering content we cannot see.
+  return shadow === null && el.children.length === 0 && (el.textContent ?? '').trim() === '';
+}
+
 function shouldSkip(el: Element, cs: CSSStyleDeclaration, rect: Rect, ctx: WalkContext): boolean {
   const tag = el.tagName.toLowerCase();
   if (SKIP_TAGS.has(tag)) return true;
   if (cs.display === 'none') return true;
   if (cs.visibility === 'hidden' && !hasVisibleText(el)) return true;
-  if (parseFloat(cs.opacity) === 0 && el.children.length === 0) return true;
-  if (rect.w <= 0 && rect.h <= 0 && el.children.length === 0) return true;
+  // Emptiness is judged on the rendered children: a shadow host has no light
+  // DOM children but paints a whole tree.
+  const childCount = renderedChildren(el).length;
+  if (parseFloat(cs.opacity) === 0 && childCount === 0) return true;
+  if (rect.w <= 0 && rect.h <= 0 && childCount === 0) return true;
   if (el.getAttribute('aria-hidden') === 'true' && !hasVisibleText(el)) return true;
-  if (outsideBounds(rect, ctx.bounds) && el.children.length === 0) return true;
+  if (outsideBounds(rect, ctx.bounds) && childCount === 0) return true;
   return false;
 }
 
@@ -283,6 +323,15 @@ export async function walkElement(
   if (styles.rotation !== undefined) frame.rotation = styles.rotation;
   if (styles.blend) frame.blendMode = styles.blend as FrameNode['blendMode'];
 
+  if (hasClosedShadowRoot(el)) {
+    ctx.warnings.degraded(
+      id,
+      'shadow-dom',
+      `<${tag}> renders a closed shadow root, which a content script cannot read`,
+      'empty frame',
+    );
+  }
+
   // Non-uniform borders become thin edge frames: Figma has no per-side stroke.
   for (const side of styles.nonUniformBorders) {
     const edge = edgeFrame(frame, side, `${id}:edge-${side.side}`);
@@ -315,8 +364,8 @@ export async function walkElement(
     }
   }
 
-  // Element children.
-  const kids = Array.from(el.children);
+  // Element children, following the *rendered* tree rather than the light DOM.
+  const kids = renderedChildren(el);
   for (let i = 0; i < kids.length; i++) {
     const child = kids[i] as Element;
     const result = await walkElement(child, ctx, [...path, i], cs);

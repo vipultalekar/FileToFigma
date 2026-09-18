@@ -19,6 +19,72 @@ export interface AssetStoreOptions {
   fetchViaBackground?: CorsFetcher;
   maxEdge?: number;
   doc?: Document;
+  /** Re-read srcset and take the sharpest candidate. Default true. */
+  preferHighRes?: boolean;
+}
+
+export interface SrcsetCandidate {
+  url: string;
+  /** Effective pixel width, from a `w` descriptor or `x` times the layout width. */
+  width: number;
+}
+
+/**
+ * Parse a srcset attribute. `w` descriptors give a pixel width directly; `x`
+ * descriptors are multipliers over the element's layout width, so the caller
+ * passes that in to make the two comparable.
+ */
+export function parseSrcset(srcset: string, layoutWidth = 0): SrcsetCandidate[] {
+  if (!srcset.trim()) return [];
+  return srcset
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      const [url = '', descriptor = ''] = part.split(/\s+/);
+      if (/^\d+(\.\d+)?w$/.test(descriptor)) return { url, width: parseFloat(descriptor) };
+      if (/^\d+(\.\d+)?x$/.test(descriptor)) {
+        return { url, width: parseFloat(descriptor) * (layoutWidth || 1) };
+      }
+      // A bare URL is the 1x candidate.
+      return { url, width: layoutWidth || 1 };
+    })
+    .filter((c) => c.url !== '');
+}
+
+/**
+ * The sharpest source an <img> offers, looking at its own srcset and at the
+ * <source> elements of a wrapping <picture>. Returns null when there is nothing
+ * better than what the browser already chose.
+ */
+export function bestSource(img: HTMLImageElement): string | null {
+  const layoutWidth = img.getBoundingClientRect().width || img.width || 0;
+  const candidates: SrcsetCandidate[] = [...parseSrcset(img.getAttribute('srcset') ?? '', layoutWidth)];
+
+  const picture = img.closest('picture');
+  if (picture) {
+    for (const source of Array.from(picture.querySelectorAll('source'))) {
+      // Skip art-directed sources meant for other viewports: their crop differs
+      // from what was on screen, so taking them would change the design.
+      if (source.getAttribute('media')) continue;
+      candidates.push(...parseSrcset(source.getAttribute('srcset') ?? '', layoutWidth));
+    }
+  }
+  if (candidates.length === 0) return null;
+
+  const best = candidates.reduce((a, b) => (b.width > a.width ? b : a));
+  const current = img.currentSrc || img.src;
+  const currentWidth = candidates.find((c) => absolute(img, c.url) === current)?.width ?? 0;
+  if (best.width <= currentWidth) return null;
+  return absolute(img, best.url);
+}
+
+function absolute(img: HTMLImageElement, url: string): string {
+  try {
+    return new URL(url, img.ownerDocument.baseURI).href;
+  } catch {
+    return url;
+  }
 }
 
 export interface StoredAsset {
@@ -75,6 +141,15 @@ export class AssetStore {
       }
     }
     if (el instanceof win.HTMLImageElement) {
+      // The browser picks a source for the viewport it is rendering at, which is
+      // often a half-resolution variant. A design file wants the sharpest one
+      // the page offers, so the srcset is re-read here and the best candidate
+      // fetched; if that fails, the rendered source still works.
+      const best = this.options.preferHighRes === false ? null : bestSource(el);
+      if (best && best !== (el.currentSrc || el.src)) {
+        const highRes = await this.fromUrl(best);
+        if (highRes) return highRes;
+      }
       return this.fromUrl(el.currentSrc || el.src, el);
     }
     return null;

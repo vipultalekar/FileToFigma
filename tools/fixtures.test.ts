@@ -58,6 +58,7 @@ const FIXTURES: Record<string, Expectation> = {
   'dense-dashboard.html': { coverage: 0.7, visualBudget: 0.12 },
   'unsupported-css.html': { warns: ['clip-path'], skipVisual: true },
   'short-root-tall-document.html': { coverage: 0.5 },
+  'web-components.html': { coverage: 0.5 },
 };
 
 describe.each(Object.entries(FIXTURES))('fixture %s', (name, expectation) => {
@@ -162,6 +163,43 @@ describe('regression: the page below the fold', () => {
 
       const { root } = await buildDocument(doc);
       expect(root.height).toBeGreaterThan(3000);
+    } finally {
+      figmaMock.uninstall();
+    }
+  }, 120_000);
+});
+
+describe('web components', () => {
+  /**
+   * A shadow host paints its shadow tree, not its light DOM children, so
+   * walking `el.children` captured nothing at all: any page built from web
+   * components imported as an empty frame. Slotted light DOM has to arrive at
+   * the slot's position, and a closed root has to be reported rather than
+   * silently dropped.
+   */
+  it('captures open shadow roots, slotted content, and reports closed ones', async () => {
+    figmaMock = installMockFigma();
+    try {
+      const captured = await captureFixture('web-components.html');
+      const { doc } = transformDocument(captured.doc);
+      const texts = [...walk(doc.root)]
+        .filter(isText)
+        .map((t) => t.characters);
+
+      // Text that exists only inside an open shadow root.
+      expect(texts.some((t) => t.includes('Shadow card'))).toBe(true);
+      expect(texts.some((t) => t.includes('Footer drawn inside the shadow root'))).toBe(true);
+      expect(texts.some((t) => t.includes('Open shadow root'))).toBe(true);
+
+      // Light DOM projected through a <slot>.
+      expect(texts.some((t) => t.includes('Slotted heading'))).toBe(true);
+      expect(texts.some((t) => t.includes('projected into the card'))).toBe(true);
+
+      // A closed root cannot be read, and says so instead of vanishing.
+      expect(
+        doc.warnings.some((w) => w.property === 'shadow-dom' && w.severity === 'degraded'),
+      ).toBe(true);
+      expect(texts.some((t) => t.includes('invisible to the capture'))).toBe(false);
     } finally {
       figmaMock.uninstall();
     }

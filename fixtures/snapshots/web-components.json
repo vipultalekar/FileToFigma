@@ -1,0 +1,296 @@
+{
+  "version": 1,
+  "root": {
+    "kind": "frame",
+    "name": "Html",
+    "rect": [
+      0,
+      0,
+      900,
+      426
+    ],
+    "layout": {
+      "mode": "VERTICAL",
+      "reason": "single",
+      "itemSpacing": 0
+    },
+    "children": [
+      {
+        "kind": "frame",
+        "name": "Rendered by shadow roots",
+        "rect": [
+          0,
+          0,
+          900,
+          426
+        ],
+        "layout": {
+          "mode": "VERTICAL",
+          "reason": "single",
+          "itemSpacing": 0
+        },
+        "children": [
+          {
+            "kind": "frame",
+            "name": "Page",
+            "rect": [
+              0,
+              0,
+              900,
+              426
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 24
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 1",
+                "rect": [
+                  40,
+                  40,
+                  820,
+                  35
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Rendered by shadow roots",
+                    "rect": [
+                      0,
+                      0,
+                      326,
+                      35
+                    ],
+                    "characters": "Rendered by shadow roots"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Card",
+                "rect": [
+                  40,
+                  99,
+                  820,
+                  157
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "flex",
+                  "itemSpacing": 10
+                },
+                "children": [
+                  {
+                    "kind": "frame",
+                    "name": "Label",
+                    "rect": [
+                      21,
+                      21,
+                      778,
+                      16
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "name": "Shadow card",
+                        "rect": [
+                          0,
+                          0,
+                          93,
+                          16
+                        ],
+                        "characters": "Shadow card"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Slotted heading",
+                    "rect": [
+                      -40,
+                      -99,
+                      0,
+                      0
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Slotted heading",
+                        "rect": [
+                          61,
+                          146,
+                          778,
+                          27
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Slotted heading",
+                            "rect": [
+                              0,
+                              0,
+                              144,
+                              27
+                            ],
+                            "characters": "Slotted heading"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "This paragraph is light...",
+                    "rect": [
+                      -40,
+                      -99,
+                      0,
+                      0
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "This paragraph is light...",
+                        "rect": [
+                          61,
+                          183,
+                          778,
+                          26
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "This paragraph is light...",
+                            "rect": [
+                              0,
+                              2,
+                              475,
+                              21
+                            ],
+                            "characters": "This paragraph is light DOM, projected into the card through a slot."
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Label 2",
+                    "rect": [
+                      21,
+                      120,
+                      778,
+                      16
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "name": "Footer drawn inside the...",
+                        "rect": [
+                          0,
+                          0,
+                          266,
+                          16
+                        ],
+                        "characters": "Footer drawn inside the shadow root"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Open shadow root",
+                "rect": [
+                  40,
+                  280,
+                  820,
+                  29
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "frame",
+                    "name": "Button / Open shadow root",
+                    "rect": [
+                      0,
+                      0,
+                      134,
+                      29
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "name": "Open shadow root",
+                        "rect": [
+                          12,
+                          6,
+                          110,
+                          17
+                        ],
+                        "characters": "Open shadow root"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "severity": "degraded",
+      "property": "shadow-dom"
+    }
+  ]
+}
