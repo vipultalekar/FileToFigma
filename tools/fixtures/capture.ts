@@ -2,7 +2,9 @@ import { build } from 'esbuild';
 import { readdir, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
+import { createServer, type Server } from 'node:http';
+import { extname, join, normalize } from 'node:path';
 import { chromium, type Browser } from 'playwright';
 import type { IRDocument } from '@web2figma/ir';
 
@@ -77,6 +79,55 @@ export interface FixtureCapture {
   height: number;
 }
 
+/**
+ * Fixtures are served over http rather than opened as file:// URLs.
+ * Chromium gives a file:// page an opaque origin, where fetch() is blocked and
+ * images taint the canvas — so a file:// harness cannot exercise the asset
+ * inlining that every real capture depends on, and would report failures that
+ * do not happen in practice (and hide ones that do).
+ */
+let server: Server | null = null;
+let origin = '';
+
+const MIME: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.woff2': 'font/woff2',
+};
+
+export async function fixtureOrigin(): Promise<string> {
+  if (server && origin) return origin;
+  server = createServer((req, res) => {
+    const path = decodeURIComponent((req.url ?? '/').split('?')[0] ?? '/');
+    // Never serve outside the fixture directory.
+    const target = normalize(join(FIXTURE_DIR, path));
+    if (!target.startsWith(FIXTURE_DIR)) {
+      res.writeHead(403).end();
+      return;
+    }
+    readFile(target)
+      .then((body) => {
+        res.writeHead(200, { 'Content-Type': MIME[extname(target).toLowerCase()] ?? 'application/octet-stream' });
+        res.end(body);
+      })
+      .catch(() => {
+        res.writeHead(404).end();
+      });
+  });
+  await new Promise<void>((resolve) => server?.listen(0, '127.0.0.1', resolve));
+  const address = server.address();
+  const port = typeof address === 'object' && address ? address.port : 0;
+  origin = `http://127.0.0.1:${port}`;
+  return origin;
+}
+
 let browser: Browser | null = null;
 
 export async function getBrowser(): Promise<Browser> {
@@ -88,6 +139,11 @@ export async function getBrowser(): Promise<Browser> {
 export async function closeFixtureBrowser(): Promise<void> {
   await browser?.close();
   browser = null;
+  if (server) {
+    await new Promise<void>((resolve) => server?.close(() => resolve()));
+    server = null;
+    origin = '';
+  }
 }
 
 export async function captureFixture(
@@ -105,7 +161,8 @@ export async function captureFixture(
   });
   const page = await context.newPage();
   try {
-    await page.goto(pathToFileURL(file).href, { waitUntil: 'networkidle' });
+    const base = await fixtureOrigin();
+    await page.goto(`${base}/${name}`, { waitUntil: 'networkidle' });
     const screenshot = await page.screenshot({ fullPage: true });
     await page.addScriptTag({ content: await captureBundle() });
     const doc = (await page.evaluate(async () => {

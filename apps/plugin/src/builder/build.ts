@@ -119,6 +119,12 @@ export async function buildDocument(
   options.onProgress?.(0, total, 'images');
   const images: ImageHashMap = new Map();
   for (const [assetId, asset] of Object.entries(doc.images)) {
+    // createImage takes PNG, JPEG and GIF only; anything else is a capture bug
+    // and throwing here would be a confusing place to discover it.
+    if (asset.mime && !/^image\/(png|jpe?g|gif)$/i.test(asset.mime)) {
+      warnings.dropped(assetId, 'image', `Figma cannot hold ${asset.mime} as an image fill`, 'placeholder');
+      continue;
+    }
     try {
       const bytes = base64ToBytes(asset.bytes);
       const image = figma.createImage(bytes);

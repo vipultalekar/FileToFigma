@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Background images</title>
+    <style>
+      /*
+        Background images have no element to draw from, so capture has to fetch
+        them. This fixture covers the three shapes that matter: an SVG (which
+        must arrive rasterised, since Figma's createImage takes PNG/JPEG/GIF
+        only), a raster PNG, and a data URI that needs no fetch at all.
+      */
+      * { box-sizing: border-box; }
+      body { margin: 0; width: 800px; font-family: Inter, system-ui, sans-serif; background: #ffffff; color: #0f172a; }
+      .stack { display: flex; flex-direction: column; gap: 20px; padding: 32px; }
+      .row { display: flex; align-items: center; gap: 12px; }
+      .swatch { width: 64px; height: 64px; border-radius: 8px; border: 1px solid #e2e8f0; }
+
+      /* An external SVG, the case that used to be dropped entirely. */
+      .vector { background-image: url('./assets/chevron.svg'); background-size: 32px 32px;
+                background-position: center; background-repeat: no-repeat; background-color: #eef2ff; }
+
+      /* An external raster file. */
+      .raster { background-image: url('./assets/dot.png'); background-size: cover; }
+
+      /* Already inline: no network involved. */
+      .inline { background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
+                background-size: cover; }
+
+      /* A gradient over an image, which must not lose either layer. */
+      .layered { background-image: linear-gradient(rgba(37, 99, 235, 0.35), rgba(37, 99, 235, 0.35)), url('./assets/dot.png');
+                 background-size: cover; }
+      .label { font-size: 14px; color: #475569; }
+    </style>
+  </head>
+  <body>
+    <div class="stack">
+      <div class="row"><div class="swatch vector"></div><span class="label">External SVG background</span></div>
+      <div class="row"><div class="swatch raster"></div><span class="label">External PNG background</span></div>
+      <div class="row"><div class="swatch inline"></div><span class="label">Inline data URI background</span></div>
+      <div class="row"><div class="swatch layered"></div><span class="label">Gradient stacked over an image</span></div>
+    </div>
+  </body>
+</html>

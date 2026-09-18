@@ -87,6 +87,27 @@ function absolute(img: HTMLImageElement, url: string): string {
   }
 }
 
+function guessMime(url: string): string {
+  const ext = /\.([a-z0-9]+)(?:[?#]|$)/i.exec(url)?.[1]?.toLowerCase();
+  switch (ext) {
+    case 'svg':
+      return 'image/svg+xml';
+    case 'png':
+      return 'image/png';
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'webp':
+      return 'image/webp';
+    case 'gif':
+      return 'image/gif';
+    case 'avif':
+      return 'image/avif';
+    default:
+      return 'image/png';
+  }
+}
+
 export interface StoredAsset {
   id: string;
   asset: ImageAsset;
@@ -206,6 +227,17 @@ export class AssetStore {
       }
     }
 
+    // A CSS background image has no element to draw from, so it has to be
+    // fetched. Every context can do this for a same-origin asset and for any
+    // CDN that sends CORS headers; without this the only route was the
+    // extension's background worker, which meant background images were
+    // dropped entirely from relay and local-HTML imports.
+    if (!id) id = await this.fetchAsAsset(url, doc);
+
+    // Loading through an <img> succeeds for some cross-origin assets that a
+    // bare fetch cannot read.
+    if (!id) id = await this.viaImageElement(url, doc);
+
     if (!id && this.options.fetchViaBackground) {
       const dataUrl = await this.options.fetchViaBackground(url);
       if (dataUrl) {
@@ -216,6 +248,63 @@ export class AssetStore {
 
     this.byUrl.set(url, id);
     return id;
+  }
+
+  /** fetch + blob -> base64, the route that works for same-origin assets. */
+  private async fetchAsAsset(url: string, doc: Document): Promise<string | null> {
+    const win = doc.defaultView ?? window;
+    try {
+      const response = await win.fetch(url, { mode: 'cors', credentials: 'omit' });
+      if (!response.ok) return null;
+      const blob = await response.blob();
+      if (blob.size === 0 || blob.size > 12 * 1024 * 1024) return null;
+      const buffer = new Uint8Array(await blob.arrayBuffer());
+      let binary = '';
+      const chunk = 0x8000;
+      for (let i = 0; i < buffer.length; i += chunk) {
+        binary += String.fromCharCode(...buffer.subarray(i, i + chunk));
+      }
+      const mime = blob.type || guessMime(url);
+      // figma.createImage only accepts PNG, JPEG and GIF bytes. An SVG has to
+      // be rasterised by the caller instead of travelling as-is, or the build
+      // throws on it.
+      if (mime.includes('svg')) return null;
+      return this.put(win.btoa(binary), mime, 0, 0);
+    } catch {
+      return null;
+    }
+  }
+
+  /** Last resort before the background worker: load it as an image and redraw. */
+  private async viaImageElement(url: string, doc: Document): Promise<string | null> {
+    const win = doc.defaultView ?? window;
+    return new Promise<string | null>((resolve) => {
+      const img = new (win as unknown as { Image: new () => HTMLImageElement }).Image();
+      img.crossOrigin = 'anonymous';
+      const done = (value: string | null): void => {
+        img.onload = null;
+        img.onerror = null;
+        resolve(value);
+      };
+      img.onload = () => {
+        const canvas = doc.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        if (canvas.width === 0 || canvas.height === 0) return done(null);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return done(null);
+        try {
+          ctx.drawImage(img, 0, 0);
+          done(this.fromCanvas(canvas));
+        } catch {
+          done(null);
+        }
+      };
+      img.onerror = () => done(null);
+      // Never let one dead asset hold up the capture.
+      setTimeout(() => done(null), 4000);
+      img.src = url;
+    });
   }
 
   private downscale(canvas: HTMLCanvasElement): HTMLCanvasElement {

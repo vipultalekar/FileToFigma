@@ -290,6 +290,38 @@ describe('dark mode capture', () => {
   }, 120_000);
 });
 
+describe('CSS background images', () => {
+  /**
+   * A background image has no element to draw from, so it must be fetched. The
+   * only route used to be the extension's background worker, which meant every
+   * background image was dropped from relay and local-HTML imports — including
+   * same-origin ones. Icons and hero images vanished and left white boxes.
+   */
+  it('inlines background images as raster bytes Figma can hold', async () => {
+    figmaMock = installMockFigma();
+    try {
+      const captured = await captureFixture('background-images.html');
+      const assets = Object.values(captured.doc.images);
+      expect(assets.length).toBeGreaterThan(0);
+
+      // figma.createImage takes PNG, JPEG and GIF only: an SVG background has
+      // to arrive rasterised, never as image/svg+xml.
+      for (const asset of assets) {
+        expect(asset.mime).toMatch(/^image\/(png|jpe?g|gif)$/);
+      }
+      expect(
+        captured.doc.warnings.filter((w) => w.property === 'background-image'),
+      ).toHaveLength(0);
+
+      const { doc } = transformDocument(captured.doc);
+      const { report } = await buildDocument(doc);
+      expect(report.warnings.filter((w) => w.property === 'image')).toHaveLength(0);
+    } finally {
+      figmaMock.uninstall();
+    }
+  }, 120_000);
+});
+
 describe('performance budgets (PRD section 11)', () => {
   it('transforms a dense page well inside the budget', async () => {
     figmaMock = installMockFigma();
