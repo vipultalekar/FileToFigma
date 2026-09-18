@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Off-screen overflow</title>
+    <style>
+      /*
+        The shape that made a real import unusable: a marquee track parked far
+        off to the right inside an `overflow: hidden` container. It is not part
+        of the page as the browser measures it — scrollWidth stays at the
+        viewport — but a capture that sizes the root to the furthest captured
+        node ends up thousands of pixels wide, leaving the real content as a
+        thin strip.
+      */
+      * { box-sizing: border-box; }
+      html { overflow-x: hidden; }
+      body { margin: 0; width: 1200px; font-family: Inter, system-ui, sans-serif; color: #0f172a; background: #fff; }
+      .page { display: flex; flex-direction: column; gap: 24px; padding: 32px; }
+      h1 { margin: 0; font-size: 26px; }
+
+      .marquee { overflow: hidden; position: relative; height: 80px; border-radius: 12px; background: #eef2ff; }
+      .track { display: flex; gap: 24px; position: absolute; left: 0; top: 16px; width: 9000px; }
+      .chip { flex: none; width: 200px; height: 48px; border-radius: 999px; background: #c7d2fe;
+              display: flex; align-items: center; justify-content: center; font-weight: 600; }
+
+      /*
+        A drawer parked off-canvas, the other common source of phantom width.
+        It sits inside a clipping host: an absolutely positioned element with
+        no such host is clipped only by <html>, and Chrome counts that toward
+        document.scrollWidth, which means the page really is that wide.
+      */
+      .drawer-host { position: relative; overflow: hidden; height: 0; }
+      .drawer { position: absolute; left: 4000px; top: 0; width: 320px; height: 400px; background: #f1f5f9; }
+
+      .cards { display: flex; flex-wrap: wrap; gap: 16px; }
+      .card { flex: 1 1 340px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+      .card h2 { margin: 0 0 6px; font-size: 16px; }
+      .card p { margin: 0; font-size: 14px; color: #475569; }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>Real content is 1200px wide</h1>
+      <div class="marquee">
+        <div class="track">
+          <div class="chip">One</div>
+          <div class="chip">Two</div>
+          <div class="chip">Three</div>
+          <div class="chip">Four</div>
+          <div class="chip">Five</div>
+        </div>
+      </div>
+      <div class="cards">
+        <article class="card"><h2>Still readable</h2><p>The frame must not be nine times wider than this.</p></article>
+        <article class="card"><h2>Still placed</h2><p>Nothing here sits thousands of pixels off to the side.</p></article>
+      </div>
+      <div class="drawer-host"><div class="drawer">Off-canvas drawer</div></div>
+    </div>
+  </body>
+</html>

@@ -47,6 +47,28 @@ export async function closeBrowser(): Promise<void> {
   browser = null;
 }
 
+/**
+ * Navigate, then give the page a chance to settle.
+ *
+ * `waitUntil: 'networkidle'` is the obvious choice and the wrong one: a site
+ * with analytics beacons, a chat widget or any polling never reaches two
+ * seconds of silence, and the whole render fails with a timeout instead of
+ * returning a perfectly good page. So the navigation only waits for the DOM,
+ * and quiet network is then a *preference* with its own small budget.
+ */
+async function gotoAndSettle(
+  page: Awaited<ReturnType<Browser['newPage']>>,
+  url: string,
+  timeoutMs: number,
+): Promise<void> {
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
+  // Give fonts, images and late layout a moment, but never hang on them.
+  await Promise.race([
+    page.waitForLoadState('networkidle', { timeout: Math.min(12_000, timeoutMs) }),
+    page.waitForTimeout(Math.min(12_000, timeoutMs)),
+  ]).catch(() => undefined);
+}
+
 export async function renderUrl(url: string, options: RenderOptions = {}): Promise<IRDocument> {
   const width = options.width ?? 1440;
   const height = options.height ?? 900;
@@ -66,10 +88,7 @@ export async function renderUrl(url: string, options: RenderOptions = {}): Promi
 
   const page = await context.newPage();
   try {
-    await page.goto(url, {
-      waitUntil: 'networkidle',
-      timeout: options.timeoutMs ?? 45_000,
-    });
+    await gotoAndSettle(page, url, options.timeoutMs ?? 45_000);
     await page.addScriptTag({ content: await getBundle() });
     const doc = (await page.evaluate(async () => {
       const api = (window as unknown as { __web2figma: { capture: () => Promise<unknown> } }).__web2figma;
@@ -95,7 +114,10 @@ export async function renderHtml(
   });
   const page = await context.newPage();
   try {
-    await page.setContent(html, { waitUntil: 'networkidle' });
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    await page
+      .waitForLoadState('networkidle', { timeout: 8_000 })
+      .catch(() => undefined);
     await page.addScriptTag({ content: await getBundle() });
     const doc = (await page.evaluate(async () => {
       const api = (window as unknown as { __web2figma: { capture: () => Promise<unknown> } }).__web2figma;
@@ -120,7 +142,8 @@ export async function screenshotHtml(
   });
   const page = await context.newPage();
   try {
-    await page.setContent(html, { waitUntil: 'networkidle' });
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle', { timeout: 8_000 }).catch(() => undefined);
     return await page.screenshot({ fullPage: options.fullPage ?? true });
   } finally {
     await page.close();

@@ -111,18 +111,22 @@ export async function captureDocument(
 
     const rootNode = result.node;
     if (isWholeDocument) {
-      // The root frame has to cover the whole *document*, not the <html> border
-      // box (PRD section 5, step 6). On any page with `html { height: 100% }`
-      // those differ by the entire scroll length, and since the root rect is
-      // also the pruning boundary, taking the border box silently deleted
+      // The root frame has to cover the whole *document*, not the <html>
+      // border box (PRD section 5, step 6): on a page with `html { height:
+      // 100% }` those differ by the entire scroll length, and since the root
+      // rect is also the pruning boundary, taking the border box deleted
       // everything below the fold.
       //
-      // scrollHeight alone is not the answer either: it never reports less than
-      // the viewport, which would pad a short page with dead space. The honest
-      // height is the taller of the element box and what was actually captured.
-      // The extent has to come from the whole tree, not the direct children:
-      // a body with `height: 100%` is viewport-tall while its own sections
-      // overflow it by thousands of pixels.
+      // The captured extent alone is just as wrong in the other direction. A
+      // carousel track or marquee parked off-screen inside an `overflow:
+      // hidden` container reaches thousands of pixels to the right without
+      // being part of the page, and sizing to it leaves the real content as a
+      // thin strip in an enormous frame.
+      //
+      // scrollWidth/scrollHeight is the browser's own answer to "how far does
+      // this document actually extend", and it already ignores clipped
+      // overflow. It is only wrong in that it never reports less than the
+      // viewport, so the captured extent is used to trim that padding away.
       let contentBottom = 0;
       let contentRight = 0;
       for (const node of walk(rootNode)) {
@@ -132,8 +136,8 @@ export async function captureDocument(
       rootNode.rect = {
         x: 0,
         y: 0,
-        w: Math.max(rootNode.rect.w, contentRight),
-        h: Math.max(rootNode.rect.h, contentBottom),
+        w: Math.max(rootNode.rect.w, Math.min(contentRight, bounds.w)),
+        h: Math.max(rootNode.rect.h, Math.min(contentBottom, bounds.h)),
       };
       if (rootNode.kind === 'frame' && rootNode.clip) {
         // html/body commonly carry `overflow-x: hidden`, which would clip the

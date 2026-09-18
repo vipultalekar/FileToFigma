@@ -322,6 +322,37 @@ describe('CSS background images', () => {
   }, 120_000);
 });
 
+describe('regression: off-screen overflow', () => {
+  /**
+   * Found on a real site whose import came back as a thin strip of content in
+   * a 12,828px frame: a marquee track inside `overflow: hidden` reached far off
+   * to the right, and the root was sized to the furthest captured node. The
+   * browser's own scrollWidth stays at the viewport, and that is the authority.
+   */
+  it('ignores clipped overflow when sizing the root frame', async () => {
+    figmaMock = installMockFigma();
+    try {
+      const captured = await captureFixture('offscreen-overflow.html', { width: 1200 });
+
+      // A node really is parked thousands of pixels out...
+      const furthest = Math.max(
+        ...[...walk(captured.doc.root)].map((n) => n.rect.x + n.rect.w),
+      );
+      expect(furthest).toBeGreaterThan(4000);
+
+      // ...but the frame stays the size of the page.
+      expect(captured.doc.root.rect.w).toBeLessThanOrEqual(1300);
+      expect(captured.doc.root.rect.w).toBeGreaterThanOrEqual(1200);
+
+      // And the content below the marquee is still there.
+      const texts = [...walk(captured.doc.root)].filter(isText).map((t) => t.characters);
+      expect(texts.some((t) => t.includes('Still readable'))).toBe(true);
+    } finally {
+      figmaMock.uninstall();
+    }
+  }, 120_000);
+});
+
 describe('performance budgets (PRD section 11)', () => {
   it('transforms a dense page well inside the budget', async () => {
     figmaMock = installMockFigma();
