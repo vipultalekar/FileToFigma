@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+*.log
+.DS_Store
+coverage/
+*.tsbuildinfo
+apps/plugin/dist/
+apps/extension/dist/
+tools/out/
+.env
+.env.local

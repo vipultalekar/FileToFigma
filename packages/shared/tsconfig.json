@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "lib": ["ES2020"],
+    "paths": { "@web2figma/ir": ["../ir/src/index.ts"] }
+  },
+  "include": ["src"],
+  "references": [{ "path": "../ir" }]
+}

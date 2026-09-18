@@ -1,0 +1,23 @@
+{
+  "name": "web2figma",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "HTML and image to editable Figma converter",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -b packages/ir packages/shared packages/transform",
+    "plugin:build": "pnpm --filter @web2figma/plugin build",
+    "plugin:watch": "pnpm --filter @web2figma/plugin watch",
+    "ext:build": "pnpm --filter @web2figma/extension build",
+    "relay": "pnpm --filter @web2figma/relay start"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "esbuild": "^0.24.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
