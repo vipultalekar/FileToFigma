@@ -14,6 +14,9 @@ import {
 
 type Tab = 'paste' | 'url' | 'html' | 'image';
 
+/** Every payload the extension writes starts with this. */
+const PAYLOAD_PREFIX = 'W2F1:';
+
 interface Status {
   kind: 'idle' | 'busy' | 'error' | 'done';
   message: string;
@@ -73,6 +76,23 @@ export function App(): JSX.Element {
     [autoLayout, bridge],
   );
 
+  // A paste anywhere in the plugin panel counts, not only inside the textarea:
+  // in the Figma desktop app it is easy to press Ctrl+V while focus sits
+  // somewhere else in the iframe, and the payload is then silently lost.
+  useEffect(() => {
+    const onPaste = (event: ClipboardEvent): void => {
+      const text = event.clipboardData?.getData('text') ?? '';
+      if (!text.trim().startsWith(PAYLOAD_PREFIX)) return;
+      const target = event.target as HTMLElement | null;
+      // The textarea handles its own paste; this is for everywhere else.
+      if (target?.tagName === 'TEXTAREA') return;
+      event.preventDefault();
+      void run('Decoding payload', () => decodeClipboard(text));
+    };
+    window.addEventListener('paste', onPaste);
+    return () => window.removeEventListener('paste', onPaste);
+  }, [run]);
+
   return (
     <div className="app">
       <header>
@@ -123,14 +143,57 @@ interface TabProps {
 
 function PasteTab({ run }: TabProps): JSX.Element {
   const [value, setValue] = useState('');
+  const [note, setNote] = useState('');
+  const field = useRef<HTMLTextAreaElement>(null);
+
+  // Figma's desktop app sends keystrokes to the canvas unless a field inside
+  // the plugin iframe holds focus, so the box focuses itself on open.
+  useEffect(() => {
+    field.current?.focus();
+  }, []);
+
+  const readClipboard = async (): Promise<void> => {
+    setNote('');
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text.trim()) {
+        setNote('The clipboard is empty. Capture a page with the extension first.');
+        return;
+      }
+      setValue(text);
+      await run('Decoding payload', () => decodeClipboard(text));
+    } catch (err) {
+      setNote(
+        `Figma would not let the plugin read the clipboard (${
+          err instanceof Error ? err.message : String(err)
+        }). Click inside the box below and press Ctrl+V.`,
+      );
+      field.current?.focus();
+    }
+  };
+
   return (
     <section>
       <p className="hint">
-        Capture a page with the Web2Figma extension, then paste the payload here.
+        Capture a page with the Web2Figma extension, then bring the payload over. Pasting
+        anywhere in this panel works.
       </p>
+      <div className="row">
+        <button className="primary" onClick={() => void readClipboard()}>
+          Read clipboard
+        </button>
+        <button
+          disabled={value.trim() === ''}
+          onClick={() => void run('Decoding payload', () => decodeClipboard(value))}
+        >
+          Import payload
+        </button>
+      </div>
+      {note && <p className="warn">{note}</p>}
       <textarea
+        ref={field}
         value={value}
-        placeholder="Paste the captured payload"
+        placeholder="...or click here and press Ctrl+V"
         onChange={(e) => setValue(e.currentTarget.value)}
         onPaste={(e) => {
           const text = e.clipboardData.getData('text');
@@ -140,13 +203,9 @@ function PasteTab({ run }: TabProps): JSX.Element {
           }
         }}
       />
-      <button
-        className="primary"
-        disabled={value.trim() === ''}
-        onClick={() => void run('Decoding payload', () => decodeClipboard(value))}
-      >
-        Import payload
-      </button>
+      {value.trim() !== '' && (
+        <p className="hint">{value.length.toLocaleString()} characters in the box</p>
+      )}
     </section>
   );
 }
