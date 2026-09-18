@@ -1,0 +1,295 @@
+{
+  "version": 1,
+  "root": {
+    "kind": "frame",
+    "name": "Northwind",
+    "rect": [
+      0,
+      0,
+      1280,
+      730
+    ],
+    "layout": {
+      "mode": "VERTICAL",
+      "reason": "single",
+      "itemSpacing": 0
+    },
+    "children": [
+      {
+        "kind": "frame",
+        "name": "Hero",
+        "rect": [
+          0,
+          0,
+          1280,
+          730
+        ],
+        "layout": {
+          "mode": "VERTICAL",
+          "reason": "geometric",
+          "itemSpacing": 68
+        },
+        "children": [
+          {
+            "kind": "frame",
+            "name": "Nav",
+            "rect": [
+              64,
+              96,
+              1152,
+              24
+            ],
+            "layout": {
+              "mode": "HORIZONTAL",
+              "reason": "flex",
+              "itemSpacing": 0
+            },
+            "children": [
+              {
+                "kind": "text",
+                "name": "Northwind",
+                "rect": [
+                  0,
+                  0,
+                  89,
+                  24
+                ],
+                "characters": "Northwind"
+              },
+              {
+                "kind": "frame",
+                "name": "List",
+                "rect": [
+                  888,
+                  3,
+                  264,
+                  19
+                ],
+                "layout": {
+                  "mode": "HORIZONTAL",
+                  "reason": "flex",
+                  "itemSpacing": 28
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "ProductPricingDocsCompa...",
+                    "rect": [
+                      0,
+                      0,
+                      264,
+                      19
+                    ],
+                    "characters": "ProductPricingDocsCompany"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Copy",
+            "rect": [
+              64,
+              192,
+              620,
+              269
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 20
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 1",
+                "rect": [
+                  0,
+                  0,
+                  620,
+                  118
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Ship the interface, not...",
+                    "rect": [
+                      0,
+                      -8,
+                      548,
+                      133
+                    ],
+                    "characters": "Ship the interface, not the meeting notes"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Northwind turns the thi...",
+                "rect": [
+                  0,
+                  138,
+                  620,
+                  58
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Northwind turns the thi...",
+                    "rect": [
+                      0,
+                      2,
+                      594,
+                      53
+                    ],
+                    "characters": "Northwind turns the thing you already built into the file your designers can edit, in about a minute."
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Actions",
+                "rect": [
+                  0,
+                  223,
+                  620,
+                  46
+                ],
+                "layout": {
+                  "mode": "HORIZONTAL",
+                  "reason": "flex",
+                  "itemSpacing": 12
+                },
+                "children": [
+                  {
+                    "kind": "frame",
+                    "name": "Button / Start free",
+                    "rect": [
+                      0,
+                      0,
+                      103,
+                      46
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "name": "Start free",
+                        "rect": [
+                          20,
+                          12,
+                          63,
+                          20
+                        ],
+                        "characters": "Start free"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Button / Watch the demo",
+                    "rect": [
+                      115,
+                      0,
+                      154,
+                      46
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "name": "Watch the demo",
+                        "rect": [
+                          21,
+                          13,
+                          112,
+                          20
+                        ],
+                        "characters": "Watch the demo"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Quote",
+            "rect": [
+              64,
+              525,
+              520,
+              85
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "geometric",
+              "itemSpacing": 0
+            },
+            "children": [
+              {
+                "kind": "text",
+                "name": "“",
+                "rect": [
+                  0,
+                  0,
+                  520,
+                  64
+                ],
+                "characters": "“"
+              },
+              {
+                "kind": "text",
+                "name": "We replaced four days o...",
+                "rect": [
+                  0,
+                  64,
+                  482,
+                  21
+                ],
+                "characters": "We replaced four days of rebuilding screens by hand with one paste."
+              }
+            ]
+          },
+          {
+            "kind": "frame",
+            "name": "Panel",
+            "rect": [
+              796,
+              160,
+              420,
+              300
+            ],
+            "layout": {
+              "mode": "NONE",
+              "reason": "leaf",
+              "itemSpacing": 0
+            },
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": []
+}

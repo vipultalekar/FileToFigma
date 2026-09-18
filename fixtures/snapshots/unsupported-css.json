@@ -1,0 +1,240 @@
+{
+  "version": 1,
+  "root": {
+    "kind": "frame",
+    "name": "Html",
+    "rect": [
+      0,
+      0,
+      900,
+      872
+    ],
+    "layout": {
+      "mode": "VERTICAL",
+      "reason": "single",
+      "itemSpacing": 0
+    },
+    "children": [
+      {
+        "kind": "frame",
+        "name": "rotate, expect a real F...",
+        "rect": [
+          0,
+          0,
+          900,
+          872
+        ],
+        "layout": {
+          "mode": "VERTICAL",
+          "reason": "single",
+          "itemSpacing": 0
+        },
+        "children": [
+          {
+            "kind": "frame",
+            "name": "rotate, expect a real F...",
+            "rect": [
+              0,
+              0,
+              900,
+              872
+            ],
+            "layout": {
+              "mode": "WRAP",
+              "reason": "flex",
+              "itemSpacing": 24
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Container",
+                "rect": [
+                  40,
+                  40,
+                  260,
+                  180
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "leaf",
+                  "itemSpacing": 0
+                },
+                "children": []
+              },
+              {
+                "kind": "frame",
+                "name": "Container 2",
+                "rect": [
+                  324,
+                  26,
+                  260,
+                  207
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "leaf",
+                  "itemSpacing": 0
+                },
+                "children": []
+              },
+              {
+                "kind": "frame",
+                "name": "Tile",
+                "rect": [
+                  29,
+                  227,
+                  283,
+                  214
+                ],
+                "layout": {
+                  "mode": "HORIZONTAL",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "rotate, expect a real F...",
+                    "rect": [
+                      46,
+                      73,
+                      194,
+                      59
+                    ],
+                    "characters": "rotate, expect a real Figma rotation"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Tile 2",
+                "rect": [
+                  324,
+                  244,
+                  260,
+                  180
+                ],
+                "layout": {
+                  "mode": "HORIZONTAL",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "backdrop-filter blur, e...",
+                    "rect": [
+                      31,
+                      69,
+                      197,
+                      42
+                    ],
+                    "characters": "backdrop-filter blur, expect BACKGROUND_BLUR"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Container 3",
+                "rect": [
+                  40,
+                  448,
+                  260,
+                  180
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "leaf",
+                  "itemSpacing": 0
+                },
+                "children": []
+              },
+              {
+                "kind": "frame",
+                "name": "Container 4",
+                "rect": [
+                  324,
+                  448,
+                  260,
+                  180
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "leaf",
+                  "itemSpacing": 0
+                },
+                "children": []
+              },
+              {
+                "kind": "frame",
+                "name": "Container 5",
+                "rect": [
+                  40,
+                  652,
+                  260,
+                  180
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "leaf",
+                  "itemSpacing": 0
+                },
+                "children": []
+              },
+              {
+                "kind": "frame",
+                "name": "Tile 3",
+                "rect": [
+                  324,
+                  652,
+                  260,
+                  180
+                ],
+                "layout": {
+                  "mode": "HORIZONTAL",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "mix-blend-mode multiply",
+                    "rect": [
+                      37,
+                      80,
+                      186,
+                      21
+                    ],
+                    "characters": "mix-blend-mode multiply"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "severity": "dropped",
+      "property": "clip-path"
+    },
+    {
+      "severity": "dropped",
+      "property": "filter:hue-rotate"
+    },
+    {
+      "severity": "dropped",
+      "property": "mask-image"
+    },
+    {
+      "severity": "dropped",
+      "property": "transform-skew"
+    },
+    {
+      "severity": "dropped",
+      "property": "writing-mode"
+    }
+  ]
+}

@@ -1,0 +1,1069 @@
+{
+  "version": 1,
+  "root": {
+    "kind": "frame",
+    "name": "Html",
+    "rect": [
+      0,
+      0,
+      960,
+      480
+    ],
+    "layout": {
+      "mode": "VERTICAL",
+      "reason": "single",
+      "itemSpacing": 0
+    },
+    "children": [
+      {
+        "kind": "frame",
+        "name": "Set in Georgia. No flex...",
+        "rect": [
+          0,
+          0,
+          960,
+          480
+        ],
+        "layout": {
+          "mode": "VERTICAL",
+          "reason": "single",
+          "itemSpacing": 0
+        },
+        "children": [
+          {
+            "kind": "frame",
+            "name": "The Quarterly Ledger",
+            "rect": [
+              30,
+              0,
+              900,
+              480
+            ],
+            "layout": {
+              "mode": "NONE",
+              "reason": "fallback",
+              "itemSpacing": 0
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "The Quarterly Ledger",
+                "rect": [
+                  0,
+                  24,
+                  900,
+                  72
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "geometric",
+                  "itemSpacing": 4
+                },
+                "children": [
+                  {
+                    "kind": "frame",
+                    "name": "Heading 1",
+                    "rect": [
+                      0,
+                      0,
+                      900,
+                      38
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "name": "The Quarterly Ledger",
+                        "rect": [
+                          0,
+                          0,
+                          365,
+                          38
+                        ],
+                        "characters": "The Quarterly Ledger"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Tag",
+                    "rect": [
+                      0,
+                      42,
+                      900,
+                      15
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "name": "Printed since 1998, flo...",
+                        "rect": [
+                          0,
+                          0,
+                          220,
+                          15
+                        ],
+                        "characters": "Printed since 1998, floated since 2004"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Container",
+                    "rect": [
+                      0,
+                      69,
+                      900,
+                      3
+                    ],
+                    "layout": {
+                      "mode": "NONE",
+                      "reason": "leaf",
+                      "itemSpacing": 0
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Sections",
+                "rect": [
+                  0,
+                  114,
+                  220,
+                  267
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "geometric",
+                  "itemSpacing": 16
+                },
+                "children": [
+                  {
+                    "kind": "frame",
+                    "name": "Box",
+                    "rect": [
+                      0,
+                      0,
+                      220,
+                      139
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "geometric",
+                      "itemSpacing": 8
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Heading 3",
+                        "rect": [
+                          13,
+                          13,
+                          194,
+                          17
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Sections",
+                            "rect": [
+                              0,
+                              0,
+                              92,
+                              17
+                            ],
+                            "characters": "Sections"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "List",
+                        "rect": [
+                          13,
+                          38,
+                          194,
+                          88
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "geometric",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "frame",
+                            "name": "List item",
+                            "rect": [
+                              18,
+                              0,
+                              176,
+                              22
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "Markets",
+                                "rect": [
+                                  0,
+                                  3,
+                                  47,
+                                  15
+                                ],
+                                "characters": "Markets"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "frame",
+                            "name": "List item 2",
+                            "rect": [
+                              18,
+                              22,
+                              176,
+                              22
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "Policy",
+                                "rect": [
+                                  0,
+                                  3,
+                                  35,
+                                  15
+                                ],
+                                "characters": "Policy"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "frame",
+                            "name": "List item 3",
+                            "rect": [
+                              18,
+                              44,
+                              176,
+                              22
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "Letters",
+                                "rect": [
+                                  0,
+                                  3,
+                                  40,
+                                  15
+                                ],
+                                "characters": "Letters"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "frame",
+                            "name": "List item 4",
+                            "rect": [
+                              18,
+                              66,
+                              176,
+                              22
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "Archive",
+                                "rect": [
+                                  0,
+                                  3,
+                                  44,
+                                  15
+                                ],
+                                "characters": "Archive"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Box 2",
+                    "rect": [
+                      0,
+                      155,
+                      220,
+                      95
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "geometric",
+                      "itemSpacing": 8
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Heading 3",
+                        "rect": [
+                          13,
+                          13,
+                          194,
+                          17
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Notices",
+                            "rect": [
+                              0,
+                              0,
+                              82,
+                              17
+                            ],
+                            "characters": "Notices"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "List",
+                        "rect": [
+                          13,
+                          38,
+                          194,
+                          44
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "geometric",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "frame",
+                            "name": "List item",
+                            "rect": [
+                              18,
+                              0,
+                              176,
+                              22
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "Subscription renewals",
+                                "rect": [
+                                  0,
+                                  3,
+                                  127,
+                                  15
+                                ],
+                                "characters": "Subscription renewals"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "frame",
+                            "name": "List item 2",
+                            "rect": [
+                              18,
+                              22,
+                              176,
+                              22
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "Correction policy",
+                                "rect": [
+                                  0,
+                                  3,
+                                  99,
+                                  15
+                                ],
+                                "characters": "Correction policy"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Quarterly results hold ...",
+                "rect": [
+                  250,
+                  114,
+                  650,
+                  295
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "geometric",
+                  "itemSpacing": 23
+                },
+                "children": [
+                  {
+                    "kind": "frame",
+                    "name": "Article",
+                    "rect": [
+                      0,
+                      0,
+                      650,
+                      160
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "geometric",
+                      "itemSpacing": 7
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Heading 2",
+                        "rect": [
+                          0,
+                          0,
+                          650,
+                          25
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Quarterly results hold ...",
+                            "rect": [
+                              0,
+                              0,
+                              328,
+                              25
+                            ],
+                            "characters": "Quarterly results hold steady"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Byline",
+                        "rect": [
+                          0,
+                          31,
+                          650,
+                          14
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "By the editorial desk",
+                            "rect": [
+                              0,
+                              0,
+                              108,
+                              14
+                            ],
+                            "characters": "By the editorial desk"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Revenue across the thre...",
+                        "rect": [
+                          0,
+                          53,
+                          650,
+                          50
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Revenue across the thre...",
+                            "rect": [
+                              0,
+                              3,
+                              628,
+                              42
+                            ],
+                            "characters": "Revenue across the three reporting units was flat against the prior period, with the services line absorbing most of the softness in hardware."
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Management reiterated g...",
+                        "rect": [
+                          0,
+                          111,
+                          650,
+                          50
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Management reiterated g...",
+                            "rect": [
+                              0,
+                              3,
+                              642,
+                              42
+                            ],
+                            "characters": "Management reiterated guidance and pointed to the renewals cohort as the reason for confidence in the second half."
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Table body",
+                    "rect": [
+                      1,
+                      183,
+                      649,
+                      112
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "geometric",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Row",
+                        "rect": [
+                          0,
+                          0,
+                          649,
+                          28
+                        ],
+                        "layout": {
+                          "mode": "HORIZONTAL",
+                          "reason": "geometric",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "frame",
+                            "name": "Header cell",
+                            "rect": [
+                              0,
+                              0,
+                              224,
+                              28
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "Unit",
+                                "rect": [
+                                  9,
+                                  7,
+                                  30,
+                                  15
+                                ],
+                                "characters": "Unit"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "frame",
+                            "name": "Header cell 2",
+                            "rect": [
+                              224,
+                              0,
+                              224,
+                              28
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "Revenue",
+                                "rect": [
+                                  9,
+                                  7,
+                                  58,
+                                  15
+                                ],
+                                "characters": "Revenue"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "frame",
+                            "name": "Header cell 3",
+                            "rect": [
+                              449,
+                              0,
+                              200,
+                              28
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "Change",
+                                "rect": [
+                                  9,
+                                  7,
+                                  50,
+                                  15
+                                ],
+                                "characters": "Change"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Row 2",
+                        "rect": [
+                          0,
+                          28,
+                          649,
+                          28
+                        ],
+                        "layout": {
+                          "mode": "HORIZONTAL",
+                          "reason": "geometric",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "frame",
+                            "name": "Cell",
+                            "rect": [
+                              0,
+                              0,
+                              224,
+                              28
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "Hardware",
+                                "rect": [
+                                  9,
+                                  7,
+                                  58,
+                                  15
+                                ],
+                                "characters": "Hardware"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "frame",
+                            "name": "Cell 2",
+                            "rect": [
+                              224,
+                              0,
+                              224,
+                              28
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "4.2m",
+                                "rect": [
+                                  9,
+                                  7,
+                                  30,
+                                  15
+                                ],
+                                "characters": "4.2m"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "frame",
+                            "name": "Cell 3",
+                            "rect": [
+                              449,
+                              0,
+                              200,
+                              28
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "-3%",
+                                "rect": [
+                                  9,
+                                  7,
+                                  23,
+                                  15
+                                ],
+                                "characters": "-3%"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Row 3",
+                        "rect": [
+                          0,
+                          56,
+                          649,
+                          28
+                        ],
+                        "layout": {
+                          "mode": "HORIZONTAL",
+                          "reason": "geometric",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "frame",
+                            "name": "Cell",
+                            "rect": [
+                              0,
+                              0,
+                              224,
+                              28
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "Services",
+                                "rect": [
+                                  9,
+                                  7,
+                                  47,
+                                  15
+                                ],
+                                "characters": "Services"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "frame",
+                            "name": "Cell 2",
+                            "rect": [
+                              224,
+                              0,
+                              224,
+                              28
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "6.8m",
+                                "rect": [
+                                  9,
+                                  7,
+                                  30,
+                                  15
+                                ],
+                                "characters": "6.8m"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "frame",
+                            "name": "Cell 3",
+                            "rect": [
+                              449,
+                              0,
+                              200,
+                              28
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "+5%",
+                                "rect": [
+                                  9,
+                                  7,
+                                  26,
+                                  15
+                                ],
+                                "characters": "+5%"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Row 4",
+                        "rect": [
+                          0,
+                          84,
+                          649,
+                          28
+                        ],
+                        "layout": {
+                          "mode": "HORIZONTAL",
+                          "reason": "geometric",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "frame",
+                            "name": "Cell",
+                            "rect": [
+                              0,
+                              0,
+                              224,
+                              28
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "Licensing",
+                                "rect": [
+                                  9,
+                                  7,
+                                  55,
+                                  15
+                                ],
+                                "characters": "Licensing"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "frame",
+                            "name": "Cell 2",
+                            "rect": [
+                              224,
+                              0,
+                              224,
+                              28
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "2.1m",
+                                "rect": [
+                                  9,
+                                  7,
+                                  28,
+                                  15
+                                ],
+                                "characters": "2.1m"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "frame",
+                            "name": "Cell 3",
+                            "rect": [
+                              449,
+                              0,
+                              200,
+                              28
+                            ],
+                            "layout": {
+                              "mode": "VERTICAL",
+                              "reason": "single",
+                              "itemSpacing": 0
+                            },
+                            "children": [
+                              {
+                                "kind": "text",
+                                "name": "+1%",
+                                "rect": [
+                                  9,
+                                  7,
+                                  25,
+                                  15
+                                ],
+                                "characters": "+1%"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Set in Georgia. No flex...",
+                "rect": [
+                  0,
+                  429,
+                  900,
+                  27
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Set in Georgia. No flex...",
+                    "rect": [
+                      0,
+                      13,
+                      331,
+                      14
+                    ],
+                    "characters": "Set in Georgia. No flexbox was used in the making of this page."
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Container",
+                    "rect": [
+                      0,
+                      0,
+                      900,
+                      1
+                    ],
+                    "layout": {
+                      "mode": "NONE",
+                      "reason": "leaf",
+                      "itemSpacing": 0
+                    },
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "severity": "degraded",
+      "property": "layout"
+    }
+  ]
+}

@@ -162,11 +162,38 @@ export class MockTextNode extends MockNode {
     this.range(start, end).link = link;
   }
 
-  /** Crude but deterministic text metrics: enough to test reflow. */
+  /**
+   * Average glyph advance. It starts at a crude 0.55em and is calibrated the
+   * moment the builder resizes the node to its captured box: the browser
+   * already measured this exact string at this exact size, so that measurement
+   * is far better than any guess, and reflow predictions land close to reality.
+   */
+  private charWidth: number | null = null;
+
+  override resize(w: number, h: number): void {
+    super.resize(w, h);
+    this.calibrate(w, h);
+  }
+
+  private calibrate(w: number, h: number): void {
+    const chars = this.characters.length;
+    if (chars === 0 || w <= 0 || h <= 0) return;
+    const lineHeightPx = this.lineHeightPx();
+    const lines = Math.max(1, Math.round(h / lineHeightPx));
+    const perLine = Math.max(1, Math.ceil(chars / lines));
+    this.charWidth = w / perLine;
+  }
+
+  private lineHeightPx(): number {
+    return this.lineHeight.unit === 'PIXELS'
+      ? (this.lineHeight.value as number)
+      : this.fontSize * 1.4;
+  }
+
+  /** Deterministic text metrics: enough to test reflow. */
   measure(width: number): { w: number; h: number } {
-    const charWidth = this.fontSize * 0.55;
-    const lineHeightPx =
-      this.lineHeight.unit === 'PIXELS' ? (this.lineHeight.value as number) : this.fontSize * 1.4;
+    const charWidth = this.charWidth ?? this.fontSize * 0.55;
+    const lineHeightPx = this.lineHeightPx();
     const perLine = Math.max(1, Math.floor(width / charWidth));
     const lines = Math.max(1, Math.ceil(this.characters.length / perLine));
     return { w: Math.min(width, this.characters.length * charWidth), h: lines * lineHeightPx };

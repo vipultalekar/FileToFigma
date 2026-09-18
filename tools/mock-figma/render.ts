@@ -38,7 +38,17 @@ function gradientDef(paint: MockPaint, id: string): string | null {
     .join('');
 
   if (paint.type === 'GRADIENT_RADIAL' || paint.type === 'GRADIENT_DIAMOND') {
-    return `<radialGradient id="${id}" cx="50%" cy="50%" r="50%">${body}</radialGradient>`;
+    // Invert the transform the mapping produced: row0 = [1/(2rx), 0, 0.5 - cx/(2rx)].
+    const t = paint.gradientTransform as number[][] | undefined;
+    const sx = t?.[0]?.[0] ?? 1;
+    const sy = t?.[1]?.[1] ?? 1;
+    const rx = sx === 0 ? 0.5 : 1 / (2 * sx);
+    const ry = sy === 0 ? 0.5 : 1 / (2 * sy);
+    const cx = (0.5 - (t?.[0]?.[2] ?? 0)) / (sx || 1);
+    const cy = (0.5 - (t?.[1]?.[2] ?? 0)) / (sy || 1);
+    return `<radialGradient id="${id}" cx="${(cx * 100).toFixed(2)}%" cy="${(cy * 100).toFixed(
+      2,
+    )}%" r="${(Math.max(rx, ry) * 100).toFixed(2)}%">${body}</radialGradient>`;
   }
   // Recover the gradient direction from the transform's first row.
   const t = paint.gradientTransform as number[][] | undefined;
@@ -54,6 +64,27 @@ function gradientDef(paint: MockPaint, id: string): string | null {
   return `<linearGradient id="${id}" x1="${x1}%" y1="${y1}%" x2="${x2}%" y2="${y2}%">${body}</linearGradient>`;
 }
 
+/** Greedy word wrap using the same 0.55em average advance as the mock metrics. */
+function wrapText(text: string, width: number, fontSize: number): string[] {
+  const charWidth = fontSize * 0.55;
+  const perLine = Math.max(1, Math.floor(width / charWidth));
+  if (text.length <= perLine) return [text];
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    const candidate = current === '' ? word : `${current} ${word}`;
+    if (candidate.length > perLine && current !== '') {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current !== '') lines.push(current);
+  return lines;
+}
+
 function escapeXml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
@@ -66,8 +97,7 @@ export function renderToSvg(root: MockNode, options: RenderOptions = {}): string
   const defs: string[] = [];
   let defCount = 0;
 
-  const paintFor = (node: MockNode): string => {
-    const fill = node.fills[node.fills.length - 1];
+  const paintFor = (node: MockNode, fill: MockPaint | undefined): string => {
     if (!fill) return 'none';
     if (fill.type === 'IMAGE') {
       const uri = options.images?.get(fill.imageHash as string);
@@ -114,12 +144,20 @@ export function renderToSvg(root: MockNode, options: RenderOptions = {}): string
           : node.textAlignHorizontal === 'RIGHT'
             ? x + node.width
             : x;
+      // SVG text does not wrap, so the lines are laid out here with the same
+      // crude metric the mock layout engine uses. Without this, a wrapped
+      // paragraph reads as a single long line and the diff is meaningless.
+      const lines = wrapText(node.characters, node.width, size);
+      const tspans = lines
+        .map(
+          (line, index) =>
+            `<tspan x="${tx}" y="${y + size * 0.85 + index * lineHeight}">${escapeXml(line)}</tspan>`,
+        )
+        .join('');
       body.push(
-        `<text x="${tx}" y="${y + size}" font-family="${escapeXml(node.fontName.family)}" font-size="${size}" fill="${toCss(
+        `<text font-family="${escapeXml(node.fontName.family)}" font-size="${size}" fill="${toCss(
           fill,
-        )}" text-anchor="${anchor}" opacity="${opacity}" style="line-height:${lineHeight}px">${escapeXml(
-          node.characters,
-        )}</text>`,
+        )}" text-anchor="${anchor}" opacity="${opacity}">${tspans}</text>`,
       );
       return;
     }
@@ -134,6 +172,7 @@ export function renderToSvg(root: MockNode, options: RenderOptions = {}): string
     const shadow = node.effects.find((e) => e.type === 'DROP_SHADOW') as
       | { color: { r: number; g: number; b: number; a: number }; offset: { x: number; y: number }; radius: number }
       | undefined;
+    let filter = '';
     if (shadow) {
       const id = `sh${++defCount}`;
       defs.push(
@@ -141,14 +180,24 @@ export function renderToSvg(root: MockNode, options: RenderOptions = {}): string
           shadow.color.r * 255,
         )},${Math.round(shadow.color.g * 255)},${Math.round(shadow.color.b * 255)},${shadow.color.a})"/></filter>`,
       );
-      body.push(
-        `<rect x="${x}" y="${y}" width="${node.width}" height="${node.height}" rx="${radius}" fill="${paintFor(node)}" stroke="${stroke}" stroke-width="${node.strokeWeight}" opacity="${opacity}" filter="url(#${id})"/>`,
-      );
-    } else {
-      body.push(
-        `<rect x="${x}" y="${y}" width="${node.width}" height="${node.height}" rx="${radius}" fill="${paintFor(node)}" stroke="${stroke}" stroke-width="${node.strokeWeight}" opacity="${opacity}"/>`,
-      );
+      filter = ` filter="url(#${id})"`;
     }
+
+    // Figma stacks fills bottom-first, so every fill gets its own rect. Drawing
+    // only the top one would silently lose a gradient over a base colour, which
+    // is exactly what a marketing hero is made of.
+    const layers = node.fills.length > 0 ? node.fills : [undefined];
+    layers.forEach((fill, index) => {
+      const isTop = index === layers.length - 1;
+      body.push(
+        `<rect x="${x}" y="${y}" width="${node.width}" height="${node.height}" rx="${radius}" fill="${paintFor(
+          node,
+          fill,
+        )}" stroke="${isTop ? stroke : 'none'}" stroke-width="${node.strokeWeight}" opacity="${opacity}"${
+          index === 0 ? filter : ''
+        }/>`,
+      );
+    });
 
     for (const child of node.children) draw(child, x, y);
   };

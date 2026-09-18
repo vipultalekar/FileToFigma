@@ -83,8 +83,6 @@ export function derivePrimaryAlign(
   const interior = mean(gaps);
   const outer = Math.max(leadPad, trailPad);
 
-  if (interior > Math.max(8, outer * 2)) return 'SPACE_BETWEEN';
-
   const contentExtent = horizontal ? parent.rect.w : parent.rect.h;
   const first = ordered[0] as IRNode;
   const last = ordered[ordered.length - 1] as IRNode;
@@ -93,6 +91,14 @@ export function derivePrimaryAlign(
     : last.rect.y + last.rect.h - first.rect.y;
   const slackBefore = horizontal ? first.rect.x : first.rect.y;
   const slackAfter = contentExtent - used - slackBefore;
+
+  // SPACE_BETWEEN only when the run really is flush to both padding edges and
+  // the interior gaps dwarf the outer padding (PRD section 7). Without the
+  // flush test, any stack with a margin between two blocks reads as
+  // SPACE_BETWEEN, which then collapses the moment the content grows.
+  const flushStart = Math.abs(slackBefore - leadPad) <= 1;
+  const flushEnd = Math.abs(slackAfter - trailPad) <= 1;
+  if (flushStart && flushEnd && interior > Math.max(8, outer * 2)) return 'SPACE_BETWEEN';
 
   if (Math.abs(slackBefore - slackAfter) <= Math.max(2, contentExtent * 0.02) && slackBefore > 4) {
     return 'CENTER';

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Web2Figma</title>
+    <style>
+      body {
+        width: 264px;
+        margin: 0;
+        padding: 12px;
+        font: 13px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif;
+        color: #111827;
+      }
+      h1 {
+        font-size: 13px;
+        margin: 0 0 8px;
+      }
+      button {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 6px;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        font: inherit;
+        cursor: pointer;
+      }
+      button.primary {
+        background: #3b82f6;
+        border-color: transparent;
+        color: #fff;
+        font-weight: 500;
+      }
+      label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #6b7280;
+        margin-bottom: 4px;
+      }
+      .status {
+        margin-top: 8px;
+        min-height: 18px;
+        color: #6b7280;
+      }
+      .status.error {
+        color: #b91c1c;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Web2Figma</h1>
+    <button id="capture" class="primary">Capture page</button>
+    <button id="pick">Pick an element</button>
+    <label><input type="checkbox" id="overlays" checked /> Dismiss cookie banners</label>
+    <label><input type="checkbox" id="autolayout" checked /> Infer Auto Layout</label>
+    <label><input type="checkbox" id="relay" /> Send to local relay</label>
+    <div class="status" id="status"></div>
+    <script src="popup.js"></script>
+  </body>
+</html>

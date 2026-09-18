@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Marketing hero</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; width: 1280px; font-family: Inter, system-ui, sans-serif; color: #0b1120; }
+      .hero {
+        position: relative;
+        padding: 96px 64px 120px;
+        background: radial-gradient(circle at 20% 10%, #c7d2fe 0%, transparent 45%),
+                    linear-gradient(160deg, #0f172a 0%, #1e293b 55%, #0f172a 100%);
+        color: #f8fafc;
+        overflow: hidden;
+      }
+      .nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 72px; }
+      .brand { font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+      .nav ul { display: flex; gap: 28px; list-style: none; margin: 0; padding: 0; font-size: 14px; color: #cbd5f5; }
+      .copy { max-width: 620px; display: flex; flex-direction: column; gap: 20px; }
+      .copy h1 { font-size: 56px; line-height: 1.05; margin: 0; letter-spacing: -0.03em; }
+      .copy p { margin: 0; font-size: 18px; line-height: 1.6; color: #cbd5f5; }
+      .actions { display: flex; gap: 12px; margin-top: 8px; }
+      .btn { padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 15px; }
+      .btn.primary { background: #6366f1; color: #fff; }
+      .btn.ghost { border: 1px solid rgba(248, 250, 252, 0.3); color: #f8fafc; }
+      .panel {
+        position: absolute;
+        right: 64px;
+        top: 160px;
+        width: 420px;
+        height: 300px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        box-shadow: 0 30px 60px rgba(2, 6, 23, 0.45);
+        backdrop-filter: blur(12px);
+      }
+      .quote::before {
+        content: "\201C";
+        font-size: 64px;
+        line-height: 1;
+        color: #6366f1;
+        display: block;
+      }
+      .quote { margin: 64px 0 0; max-width: 520px; font-size: 16px; color: #cbd5f5; }
+    </style>
+  </head>
+  <body>
+    <section class="hero" data-role="hero">
+      <nav class="nav" data-role="nav">
+        <div class="brand">Northwind</div>
+        <ul><li>Product</li><li>Pricing</li><li>Docs</li><li>Company</li></ul>
+      </nav>
+      <div class="copy">
+        <h1>Ship the interface, not the meeting notes</h1>
+        <p>Northwind turns the thing you already built into the file your designers can edit, in about a minute.</p>
+        <div class="actions">
+          <span class="btn primary">Start free</span>
+          <span class="btn ghost">Watch the demo</span>
+        </div>
+      </div>
+      <div class="panel"></div>
+      <blockquote class="quote">We replaced four days of rebuilding screens by hand with one paste.</blockquote>
+    </section>
+  </body>
+</html>

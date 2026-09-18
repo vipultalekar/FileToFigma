@@ -165,11 +165,8 @@ export function parseGradient(
         const rx = lengthToFraction(lengths[0] as string, width);
         const ry = lengthToFraction(lengths[1] ?? (lengths[0] as string), height);
         if (rx !== null) radius = { x: rx, y: ry ?? rx };
-      } else if (/closest-side/.test(size)) {
-        radius = {
-          x: Math.min(center.x, 1 - center.x),
-          y: Math.min(center.y, 1 - center.y),
-        };
+      } else {
+        radius = radialExtent(size, center, width, height);
       }
     }
   } else if (kind === 'conic') {
@@ -203,6 +200,60 @@ export function parseGradient(
         : 'GRADIENT_ANGULAR';
 
   return { type, angle, stops, center, radius, repeating };
+}
+
+/**
+ * CSS radial extents, normalised to fractions of the box. The default is
+ * farthest-corner, and a `circle` keeps one pixel radius on both axes, which is
+ * why the result is not simply 0.5 on each side.
+ */
+export function radialExtent(
+  size: string,
+  center: { x: number; y: number },
+  width: number,
+  height: number,
+): { x: number; y: number } {
+  const w = width || 1;
+  const h = height || 1;
+  const cx = center.x * w;
+  const cy = center.y * h;
+  const dxNear = Math.min(cx, w - cx);
+  const dxFar = Math.max(cx, w - cx);
+  const dyNear = Math.min(cy, h - cy);
+  const dyFar = Math.max(cy, h - cy);
+  const circle = /\bcircle\b/.test(size);
+
+  let rx: number;
+  let ry: number;
+  if (/closest-side/.test(size)) {
+    rx = dxNear;
+    ry = dyNear;
+    if (circle) rx = ry = Math.min(dxNear, dyNear);
+  } else if (/farthest-side/.test(size)) {
+    rx = dxFar;
+    ry = dyFar;
+    if (circle) rx = ry = Math.max(dxFar, dyFar);
+  } else if (/closest-corner/.test(size)) {
+    const d = Math.hypot(dxNear, dyNear);
+    if (circle) {
+      rx = ry = d;
+    } else {
+      const ratio = dyNear === 0 ? 1 : dxNear / dyNear;
+      ry = d / Math.SQRT2;
+      rx = ry * ratio;
+    }
+  } else {
+    // farthest-corner, the CSS default.
+    const d = Math.hypot(dxFar, dyFar);
+    if (circle) {
+      rx = ry = d;
+    } else {
+      const ratio = dyFar === 0 ? 1 : dxFar / dyFar;
+      ry = d / Math.SQRT2;
+      rx = ry * ratio;
+    }
+  }
+  return { x: rx / w, y: ry / h };
 }
 
 function keywordPosition(token: string, extent: number, axis: 'x' | 'y'): number {

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Pseudo elements</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; width: 800px; font-family: Inter, system-ui, sans-serif; color: #111827; background: #fff; }
+      .stack { display: flex; flex-direction: column; gap: 28px; padding: 40px; }
+      .checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+      .checklist li { position: relative; padding-left: 28px; font-size: 15px; }
+      .checklist li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 3px;
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        background: #22c55e;
+      }
+      .divider { position: relative; height: 24px; }
+      .divider::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 12px;
+        height: 1px;
+        background: #e5e7eb;
+      }
+      .pull { position: relative; padding-left: 44px; font-size: 18px; line-height: 1.6; color: #374151; }
+      .pull::before {
+        content: "\201C";
+        position: absolute;
+        left: 0;
+        top: -10px;
+        font-size: 56px;
+        color: #c7d2fe;
+      }
+      .badge { position: relative; display: inline-block; padding: 8px 14px; background: #eef2ff; border-radius: 8px; font-weight: 600; }
+      .badge::after {
+        content: "NEW";
+        position: absolute;
+        top: -8px;
+        right: -10px;
+        background: #ef4444;
+        color: #fff;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 999px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stack">
+      <ul class="checklist">
+        <li>Capture runs entirely on the machine</li>
+        <li>Pseudo elements survive the walk</li>
+        <li>Every degraded property is reported</li>
+      </ul>
+      <div class="divider"></div>
+      <p class="pull">The converter should tell you what it could not do, rather than quietly dropping it.</p>
+      <div><span class="badge">Element picker</span></div>
+    </div>
+  </body>
+</html>

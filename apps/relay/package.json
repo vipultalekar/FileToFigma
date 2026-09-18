@@ -1,0 +1,19 @@
+{
+  "name": "@web2figma/relay",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node build.mjs && node dist/server.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@web2figma/capture": "workspace:*",
+    "@web2figma/image-pipeline": "workspace:*",
+    "@web2figma/ir": "workspace:*",
+    "@web2figma/shared": "workspace:*",
+    "@web2figma/transform": "workspace:*",
+    "playwright": "^1.49.1"
+  }
+}

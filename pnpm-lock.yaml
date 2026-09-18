@@ -11,15 +11,46 @@ importers:
       '@types/node':
         specifier: ^22.10.2
         version: 22.20.3
+      '@types/pngjs':
+        specifier: ^6.0.5
+        version: 6.0.5
       esbuild:
         specifier: ^0.24.2
         version: 0.24.2
+      pixelmatch:
+        specifier: ^6.0.0
+        version: 6.0.0
+      playwright:
+        specifier: ^1.49.1
+        version: 1.63.0
+      pngjs:
+        specifier: ^7.0.0
+        version: 7.0.0
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
       vitest:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.20.3)
+
+  apps/extension:
+    dependencies:
+      '@web2figma/capture':
+        specifier: workspace:*
+        version: link:../../packages/capture
+      '@web2figma/ir':
+        specifier: workspace:*
+        version: link:../../packages/ir
+      '@web2figma/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@web2figma/transform':
+        specifier: workspace:*
+        version: link:../../packages/transform
+    devDependencies:
+      '@types/chrome':
+        specifier: ^0.0.287
+        version: 0.0.287
 
   apps/plugin:
     dependencies:
@@ -52,6 +83,27 @@ importers:
         specifier: ^18.3.1
         version: 18.3.7(@types/react@18.3.31)
 
+  apps/relay:
+    dependencies:
+      '@web2figma/capture':
+        specifier: workspace:*
+        version: link:../../packages/capture
+      '@web2figma/image-pipeline':
+        specifier: workspace:*
+        version: link:../../packages/image-pipeline
+      '@web2figma/ir':
+        specifier: workspace:*
+        version: link:../../packages/ir
+      '@web2figma/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@web2figma/transform':
+        specifier: workspace:*
+        version: link:../../packages/transform
+      playwright:
+        specifier: ^1.49.1
+        version: 1.63.0
+
   packages/capture:
     dependencies:
       '@web2figma/ir':
@@ -63,6 +115,15 @@ importers:
       '@web2figma/transform':
         specifier: workspace:*
         version: link:../transform
+
+  packages/image-pipeline:
+    dependencies:
+      '@web2figma/ir':
+        specifier: workspace:*
+        version: link:../ir
+      '@web2figma/shared':
+        specifier: workspace:*
+        version: link:../shared
 
   packages/ir: {}
 
@@ -522,11 +583,26 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@types/chrome@0.0.287':
+    resolution: {integrity: sha512-wWhBNPNXZHwycHKNYnexUcpSbrihVZu++0rdp6GEk5ZgAglenLx+RwdEouh6FrHS0XQiOxSd62yaujM1OoQlZQ==}
+
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
 
+  '@types/filesystem@0.0.36':
+    resolution: {integrity: sha512-vPDXOZuannb9FZdxgHnqSwAG/jvdGM8Wq+6N4D/d80z+D4HWH+bItqsZaVRQykAn6WEVeEkLm2oQigyHtgb0RA==}
+
+  '@types/filewriter@0.0.33':
+    resolution: {integrity: sha512-xFU8ZXTw4gd358lb2jw25nxY9QAgqn2+bKKjKOYfNCzN4DKCFetK7sPtrlpg66Ywe3vWY9FNxprZawAh9wfJ3g==}
+
+  '@types/har-format@1.2.16':
+    resolution: {integrity: sha512-fluxdy7ryD3MV6h8pTfTYpy/xQzCFC7m89nOH9y94cNqJ1mDIDPut7MnRHI3F6qRmh/cT2fUjG1MLdCNb4hE9A==}
+
   '@types/node@22.20.3':
     resolution: {integrity: sha512-DZmzkmwHzXrLPAXPyKNDzlIwMMUZCVacoD25ywdy5YTKGbOx/2ld+Q38Im2zJ0vBuZP5Prd3VZutKZyXwkOS8A==}
+
+  '@types/pngjs@6.0.5':
+    resolution: {integrity: sha512-0k5eKfrA83JOZPppLtS2C7OUtyNAl2wKNxfyYl9Q5g9lPkgBl/9hNyAu6HuEH2J4XmIv2znEpkDd0SaZVxW6iQ==}
 
   '@types/prop-types@15.7.15':
     resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
@@ -655,6 +731,24 @@ packages:
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
+
+  pixelmatch@6.0.0:
+    resolution: {integrity: sha512-FYpL4XiIWakTnIqLqvt3uN4L9B3TsuHIvhLILzTiJZMJUsGvmKNeL4H3b6I99LRyerK9W4IuOXw+N28AtRgK2g==}
+    hasBin: true
+
+  playwright-core@1.63.0:
+    resolution: {integrity: sha512-rYCsBF/M5HjUch52bbtVONEFjv6Xu8sm8h72dNlR5bzIE1fvC/bxgspzkjSfU+MweEMmPM8KJebG6nnyxo5mCg==}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  playwright@1.63.0:
+    resolution: {integrity: sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  pngjs@7.0.0:
+    resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
+    engines: {node: '>=14.19.0'}
 
   postcss@8.5.28:
     resolution: {integrity: sha512-RRuzqDtt5Y9h3quz5hWhK+TPnsmVs6WwSU6LkJMeY4HstUEDuYTG8UJSdawMRzmzAtV+KEoG8N3Qg2qLy5vM/A==}
@@ -1010,11 +1104,28 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.63.3':
     optional: true
 
+  '@types/chrome@0.0.287':
+    dependencies:
+      '@types/filesystem': 0.0.36
+      '@types/har-format': 1.2.16
+
   '@types/estree@1.0.9': {}
+
+  '@types/filesystem@0.0.36':
+    dependencies:
+      '@types/filewriter': 0.0.33
+
+  '@types/filewriter@0.0.33': {}
+
+  '@types/har-format@1.2.16': {}
 
   '@types/node@22.20.3':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/pngjs@6.0.5':
+    dependencies:
+      '@types/node': 22.20.3
 
   '@types/prop-types@15.7.15': {}
 
@@ -1175,6 +1286,18 @@ snapshots:
   pathval@2.0.1: {}
 
   picocolors@1.1.1: {}
+
+  pixelmatch@6.0.0:
+    dependencies:
+      pngjs: 7.0.0
+
+  playwright-core@1.63.0: {}
+
+  playwright@1.63.0:
+    dependencies:
+      playwright-core: 1.63.0
+
+  pngjs@7.0.0: {}
 
   postcss@8.5.28:
     dependencies:

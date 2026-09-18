@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Legacy float layout</title>
+    <style>
+      body { margin: 0; width: 960px; font-family: Georgia, "Times New Roman", serif; color: #222; background: #fffdf8; }
+      #wrap { width: 900px; margin: 0 auto; padding: 24px 0; }
+      #masthead { border-bottom: 3px double #8a7b5c; padding-bottom: 12px; margin-bottom: 18px; }
+      #masthead h1 { font-size: 34px; margin: 0 0 4px; letter-spacing: -0.5px; }
+      #masthead .tag { color: #6b5f47; font-size: 13px; font-style: italic; }
+      #sidebar { float: left; width: 220px; }
+      #content { float: right; width: 650px; }
+      .clear { clear: both; height: 0; overflow: hidden; }
+      .box { border: 1px solid #ddd5c0; background: #fff; padding: 12px; margin-bottom: 16px; }
+      .box h3 { margin: 0 0 8px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.08em; }
+      .box ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.7; }
+      .article { margin-bottom: 22px; }
+      .article h2 { font-size: 22px; margin: 0 0 6px; }
+      .article p { margin: 0 0 8px; line-height: 1.65; font-size: 15px; }
+      .byline { font-size: 12px; color: #7a6f57; margin-bottom: 8px; }
+      table.stats { border-collapse: collapse; width: 100%; font-size: 13px; }
+      table.stats th, table.stats td { border: 1px solid #ddd5c0; padding: 6px 8px; text-align: left; }
+      table.stats th { background: #f3ede0; }
+      #footer { border-top: 1px solid #ddd5c0; margin-top: 20px; padding-top: 12px; font-size: 12px; color: #7a6f57; }
+    </style>
+  </head>
+  <body>
+    <div id="wrap">
+      <div id="masthead">
+        <h1>The Quarterly Ledger</h1>
+        <div class="tag">Printed since 1998, floated since 2004</div>
+      </div>
+      <div id="sidebar">
+        <div class="box">
+          <h3>Sections</h3>
+          <ul><li>Markets</li><li>Policy</li><li>Letters</li><li>Archive</li></ul>
+        </div>
+        <div class="box">
+          <h3>Notices</h3>
+          <ul><li>Subscription renewals</li><li>Correction policy</li></ul>
+        </div>
+      </div>
+      <div id="content">
+        <div class="article">
+          <h2>Quarterly results hold steady</h2>
+          <div class="byline">By the editorial desk</div>
+          <p>Revenue across the three reporting units was flat against the prior period, with the services line absorbing most of the softness in hardware.</p>
+          <p>Management reiterated guidance and pointed to the renewals cohort as the reason for confidence in the second half.</p>
+        </div>
+        <table class="stats">
+          <tr><th>Unit</th><th>Revenue</th><th>Change</th></tr>
+          <tr><td>Hardware</td><td>4.2m</td><td>-3%</td></tr>
+          <tr><td>Services</td><td>6.8m</td><td>+5%</td></tr>
+          <tr><td>Licensing</td><td>2.1m</td><td>+1%</td></tr>
+        </table>
+      </div>
+      <div class="clear"></div>
+      <div id="footer">Set in Georgia. No flexbox was used in the making of this page.</div>
+    </div>
+  </body>
+</html>

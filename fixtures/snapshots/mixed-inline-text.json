@@ -1,0 +1,200 @@
+{
+  "version": 1,
+  "root": {
+    "kind": "frame",
+    "name": "Html",
+    "rect": [
+      0,
+      0,
+      720,
+      314
+    ],
+    "layout": {
+      "mode": "VERTICAL",
+      "reason": "single",
+      "itemSpacing": 0
+    },
+    "children": [
+      {
+        "kind": "frame",
+        "name": "Ranged styles inside on...",
+        "rect": [
+          0,
+          0,
+          720,
+          314
+        ],
+        "layout": {
+          "mode": "VERTICAL",
+          "reason": "single",
+          "itemSpacing": 0
+        },
+        "children": [
+          {
+            "kind": "frame",
+            "name": "Main",
+            "rect": [
+              0,
+              0,
+              720,
+              314
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 20
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Heading 1",
+                "rect": [
+                  48,
+                  48,
+                  624,
+                  35
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Ranged styles inside on...",
+                    "rect": [
+                      0,
+                      0,
+                      434,
+                      35
+                    ],
+                    "characters": "Ranged styles inside one paragraph"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Lead",
+                "rect": [
+                  48,
+                  103,
+                  624,
+                  61
+                ],
+                "layout": {
+                  "mode": "WRAP",
+                  "reason": "geometric",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "A single paragraph can ...",
+                    "rect": [
+                      0,
+                      3,
+                      608,
+                      24
+                    ],
+                    "characters": " A single paragraph can hold , , , inline "
+                  },
+                  {
+                    "kind": "text",
+                    "name": "and without ever becomi...",
+                    "rect": [
+                      87,
+                      34,
+                      505,
+                      24
+                    ],
+                    "characters": " and  without ever becoming five separate layers. "
+                  },
+                  {
+                    "kind": "text",
+                    "name": "bold runsitalic asidesl...",
+                    "rect": [
+                      228,
+                      3,
+                      329,
+                      24
+                    ],
+                    "characters": "bold runsitalic asideslinks to elsewhere"
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "code spans",
+                    "rect": [
+                      0,
+                      39,
+                      87,
+                      19
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "name": "code spans",
+                        "rect": [
+                          5,
+                          1,
+                          77,
+                          17
+                        ],
+                        "characters": "code spans"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "text",
+                    "name": "struck-out text",
+                    "rect": [
+                      127,
+                      34,
+                      116,
+                      24
+                    ],
+                    "characters": "struck-out text"
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "The capture emits one r...",
+                "rect": [
+                  48,
+                  184,
+                  624,
+                  82
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "The capture emits one r...",
+                    "rect": [
+                      0,
+                      3,
+                      619,
+                      75
+                    ],
+                    "characters": " The capture emits one run per text node so the ranged styles survive, and normalisation merges them back into a single editable text node with . Editing the sentence in Figma should keep the  attached to the same words it started on. segments link"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": []
+}

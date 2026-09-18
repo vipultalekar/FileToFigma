@@ -12,12 +12,17 @@
     "plugin:build": "pnpm --filter @web2figma/plugin build",
     "plugin:watch": "pnpm --filter @web2figma/plugin watch",
     "ext:build": "pnpm --filter @web2figma/extension build",
-    "relay": "pnpm --filter @web2figma/relay start"
+    "relay": "pnpm --filter @web2figma/relay start",
+    "test:fixtures": "vitest run tools/fixtures.test.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "esbuild": "^0.24.2",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "pixelmatch": "^6.0.0",
+    "pngjs": "^7.0.0",
+    "@types/pngjs": "^6.0.5",
+    "playwright": "^1.49.1"
   }
 }

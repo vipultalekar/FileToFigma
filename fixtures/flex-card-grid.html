@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Flex card grid</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        width: 1200px;
+        font-family: Inter, system-ui, sans-serif;
+        background: #f8fafc;
+        color: #0f172a;
+      }
+      .page { display: flex; flex-direction: column; gap: 32px; padding: 48px; }
+      .head { display: flex; align-items: center; justify-content: space-between; }
+      h1 { font-size: 28px; margin: 0; }
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 18px;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .grid { display: flex; flex-wrap: wrap; gap: 24px; }
+      .card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 336px;
+        padding: 20px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+      }
+      .thumb { height: 140px; border-radius: 8px; background: linear-gradient(135deg, #38bdf8, #6366f1); }
+      .card h2 { font-size: 18px; margin: 0; }
+      .card p { margin: 0; color: #475569; font-size: 14px; line-height: 1.5; }
+      .meta { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; }
+    </style>
+  </head>
+  <body>
+    <div class="page" data-role="page">
+      <header class="head" data-role="header">
+        <h1>Recent projects</h1>
+        <a class="cta" href="#new" data-testid="new-project">New project</a>
+      </header>
+      <section class="grid" data-role="grid">
+        <article class="card" data-role="card">
+          <div class="thumb"></div>
+          <h2>Atlas dashboard</h2>
+          <p>Analytics surface for the operations team, rebuilt on the new design system.</p>
+          <div class="meta"><span>Updated 2 days ago</span><span>4 editors</span></div>
+        </article>
+        <article class="card" data-role="card">
+          <div class="thumb"></div>
+          <h2>Payments onboarding</h2>
+          <p>Five step flow with inline validation and a saved progress state.</p>
+          <div class="meta"><span>Updated today</span><span>2 editors</span></div>
+        </article>
+        <article class="card" data-role="card">
+          <div class="thumb"></div>
+          <h2>Marketing site</h2>
+          <p>Landing pages, pricing table and the documentation shell.</p>
+          <div class="meta"><span>Updated last week</span><span>7 editors</span></div>
+        </article>
+        <article class="card" data-role="card">
+          <div class="thumb"></div>
+          <h2>Mobile companion</h2>
+          <p>Read-only companion app for approvals while away from the desk.</p>
+          <div class="meta"><span>Updated 3 days ago</span><span>3 editors</span></div>
+        </article>
+        <article class="card" data-role="card">
+          <div class="thumb"></div>
+          <h2>Support console</h2>
+          <p>Ticket triage with a keyboard-first queue and saved filters.</p>
+          <div class="meta"><span>Updated 5 days ago</span><span>1 editor</span></div>
+        </article>
+        <article class="card" data-role="card">
+          <div class="thumb"></div>
+          <h2>Design tokens</h2>
+          <p>Single source of truth for colour, type and spacing across products.</p>
+          <div class="meta"><span>Updated 1 hour ago</span><span>5 editors</span></div>
+        </article>
+      </section>
+    </div>
+  </body>
+</html>

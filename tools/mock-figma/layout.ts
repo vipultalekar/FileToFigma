@@ -131,7 +131,10 @@ export function solveLayout(frame: MockNode): void {
     if (frame.primaryAxisAlignItems === 'CENTER') start += slack / 2;
     else if (frame.primaryAxisAlignItems === 'MAX') start += slack;
     else if (frame.primaryAxisAlignItems === 'SPACE_BETWEEN' && gaps > 0) {
-      spacing = (available - contentMain) / gaps;
+      // Figma never pulls items back over each other: when the content is
+      // larger than the frame, spacing bottoms out at 0 and the content
+      // overflows instead.
+      spacing = Math.max(0, (available - contentMain) / gaps);
     }
 
     let cursor = start;

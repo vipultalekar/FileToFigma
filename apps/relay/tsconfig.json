@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM"],
+    "composite": false,
+    "declaration": false,
+    "noEmit": true,
+    "types": ["node"],
+    "paths": {
+      "@web2figma/ir": ["../../packages/ir/src/index.ts"],
+      "@web2figma/shared": ["../../packages/shared/src/index.ts"],
+      "@web2figma/transform": ["../../packages/transform/src/index.ts"],
+      "@web2figma/capture": ["../../packages/capture/src/index.ts"],
+      "@web2figma/image-pipeline": ["../../packages/image-pipeline/src/index.ts"]
+    }
+  },
+  "include": ["src"]
+}

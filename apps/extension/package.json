@@ -1,0 +1,20 @@
+{
+  "name": "@web2figma/extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@web2figma/capture": "workspace:*",
+    "@web2figma/ir": "workspace:*",
+    "@web2figma/shared": "workspace:*",
+    "@web2figma/transform": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.287"
+  }
+}

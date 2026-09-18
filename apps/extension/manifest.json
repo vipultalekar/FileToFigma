@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Web2Figma",
+  "version": "0.1.0",
+  "description": "Capture any page or element as editable Figma layers.",
+  "permissions": ["activeTab", "scripting", "clipboardWrite", "storage"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Web2Figma"
+  },
+  "commands": {
+    "capture-page": {
+      "suggested_key": { "default": "Alt+Shift+F" },
+      "description": "Capture the whole page"
+    },
+    "pick-element": {
+      "suggested_key": { "default": "Alt+Shift+E" },
+      "description": "Pick an element to capture"
+    }
+  }
+}

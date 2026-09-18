@@ -1,0 +1,830 @@
+{
+  "version": 1,
+  "root": {
+    "kind": "frame",
+    "name": "Html",
+    "rect": [
+      0,
+      0,
+      1200,
+      793
+    ],
+    "layout": {
+      "mode": "VERTICAL",
+      "reason": "single",
+      "itemSpacing": 0
+    },
+    "children": [
+      {
+        "kind": "frame",
+        "name": "Recent projects",
+        "rect": [
+          0,
+          0,
+          1200,
+          793
+        ],
+        "layout": {
+          "mode": "VERTICAL",
+          "reason": "single",
+          "itemSpacing": 0
+        },
+        "children": [
+          {
+            "kind": "frame",
+            "name": "Page",
+            "rect": [
+              0,
+              0,
+              1200,
+              793
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 32
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "Header",
+                "rect": [
+                  48,
+                  48,
+                  1104,
+                  41
+                ],
+                "layout": {
+                  "mode": "HORIZONTAL",
+                  "reason": "flex",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "Recent projects",
+                    "rect": [
+                      0,
+                      2,
+                      202,
+                      37
+                    ],
+                    "characters": "Recent projects"
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "new-project",
+                    "rect": [
+                      980,
+                      0,
+                      124,
+                      41
+                    ],
+                    "layout": {
+                      "mode": "HORIZONTAL",
+                      "reason": "flex",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "name": "new-project",
+                        "rect": [
+                          18,
+                          10,
+                          88,
+                          21
+                        ],
+                        "characters": "New project"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Grid",
+                "rect": [
+                  48,
+                  121,
+                  1104,
+                  624
+                ],
+                "layout": {
+                  "mode": "WRAP",
+                  "reason": "flex",
+                  "itemSpacing": 24
+                },
+                "children": [
+                  {
+                    "kind": "frame",
+                    "name": "Card",
+                    "rect": [
+                      0,
+                      0,
+                      336,
+                      300
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "flex",
+                      "itemSpacing": 12
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Thumb",
+                        "rect": [
+                          21,
+                          21,
+                          294,
+                          140
+                        ],
+                        "layout": {
+                          "mode": "NONE",
+                          "reason": "leaf",
+                          "itemSpacing": 0
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Heading 2",
+                        "rect": [
+                          21,
+                          173,
+                          294,
+                          24
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Atlas dashboard",
+                            "rect": [
+                              0,
+                              0,
+                              137,
+                              24
+                            ],
+                            "characters": "Atlas dashboard"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Analytics surface for t...",
+                        "rect": [
+                          21,
+                          209,
+                          294,
+                          42
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Analytics surface for t...",
+                            "rect": [
+                              0,
+                              1,
+                              256,
+                              40
+                            ],
+                            "characters": "Analytics surface for the operations team, rebuilt on the new design system."
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Meta",
+                        "rect": [
+                          21,
+                          263,
+                          294,
+                          16
+                        ],
+                        "layout": {
+                          "mode": "HORIZONTAL",
+                          "reason": "flex",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Updated 2 days ago4 edi...",
+                            "rect": [
+                              0,
+                              0,
+                              294,
+                              16
+                            ],
+                            "characters": "Updated 2 days ago4 editors"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Card 2",
+                    "rect": [
+                      360,
+                      0,
+                      336,
+                      300
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "flex",
+                      "itemSpacing": 12
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Thumb",
+                        "rect": [
+                          21,
+                          21,
+                          294,
+                          140
+                        ],
+                        "layout": {
+                          "mode": "NONE",
+                          "reason": "leaf",
+                          "itemSpacing": 0
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Heading 2",
+                        "rect": [
+                          21,
+                          173,
+                          294,
+                          24
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Payments onboarding",
+                            "rect": [
+                              0,
+                              0,
+                              186,
+                              24
+                            ],
+                            "characters": "Payments onboarding"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Five step flow with inl...",
+                        "rect": [
+                          21,
+                          209,
+                          294,
+                          42
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Five step flow with inl...",
+                            "rect": [
+                              0,
+                              1,
+                              293,
+                              40
+                            ],
+                            "characters": "Five step flow with inline validation and a saved progress state."
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Meta",
+                        "rect": [
+                          21,
+                          263,
+                          294,
+                          16
+                        ],
+                        "layout": {
+                          "mode": "HORIZONTAL",
+                          "reason": "flex",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Updated today2 editors",
+                            "rect": [
+                              0,
+                              0,
+                              294,
+                              16
+                            ],
+                            "characters": "Updated today2 editors"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Card 3",
+                    "rect": [
+                      720,
+                      0,
+                      336,
+                      300
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "flex",
+                      "itemSpacing": 12
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Thumb",
+                        "rect": [
+                          21,
+                          21,
+                          294,
+                          140
+                        ],
+                        "layout": {
+                          "mode": "NONE",
+                          "reason": "leaf",
+                          "itemSpacing": 0
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Heading 2",
+                        "rect": [
+                          21,
+                          173,
+                          294,
+                          24
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Marketing site",
+                            "rect": [
+                              0,
+                              0,
+                              122,
+                              24
+                            ],
+                            "characters": "Marketing site"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Landing pages, pricing ...",
+                        "rect": [
+                          21,
+                          209,
+                          294,
+                          42
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Landing pages, pricing ...",
+                            "rect": [
+                              0,
+                              1,
+                              225,
+                              40
+                            ],
+                            "characters": "Landing pages, pricing table and the documentation shell."
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Meta",
+                        "rect": [
+                          21,
+                          263,
+                          294,
+                          16
+                        ],
+                        "layout": {
+                          "mode": "HORIZONTAL",
+                          "reason": "flex",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Updated last week7 edit...",
+                            "rect": [
+                              0,
+                              0,
+                              294,
+                              16
+                            ],
+                            "characters": "Updated last week7 editors"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Card 4",
+                    "rect": [
+                      0,
+                      324,
+                      336,
+                      300
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "flex",
+                      "itemSpacing": 12
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Thumb",
+                        "rect": [
+                          21,
+                          21,
+                          294,
+                          140
+                        ],
+                        "layout": {
+                          "mode": "NONE",
+                          "reason": "leaf",
+                          "itemSpacing": 0
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Heading 2",
+                        "rect": [
+                          21,
+                          173,
+                          294,
+                          24
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Mobile companion",
+                            "rect": [
+                              0,
+                              0,
+                              159,
+                              24
+                            ],
+                            "characters": "Mobile companion"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Read-only companion app...",
+                        "rect": [
+                          21,
+                          209,
+                          294,
+                          42
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Read-only companion app...",
+                            "rect": [
+                              0,
+                              1,
+                              284,
+                              40
+                            ],
+                            "characters": "Read-only companion app for approvals while away from the desk."
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Meta",
+                        "rect": [
+                          21,
+                          263,
+                          294,
+                          16
+                        ],
+                        "layout": {
+                          "mode": "HORIZONTAL",
+                          "reason": "flex",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Updated 3 days ago3 edi...",
+                            "rect": [
+                              0,
+                              0,
+                              294,
+                              16
+                            ],
+                            "characters": "Updated 3 days ago3 editors"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Card 5",
+                    "rect": [
+                      360,
+                      324,
+                      336,
+                      300
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "flex",
+                      "itemSpacing": 12
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Thumb",
+                        "rect": [
+                          21,
+                          21,
+                          294,
+                          140
+                        ],
+                        "layout": {
+                          "mode": "NONE",
+                          "reason": "leaf",
+                          "itemSpacing": 0
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Heading 2",
+                        "rect": [
+                          21,
+                          173,
+                          294,
+                          24
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Support console",
+                            "rect": [
+                              0,
+                              0,
+                              138,
+                              24
+                            ],
+                            "characters": "Support console"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Ticket triage with a ke...",
+                        "rect": [
+                          21,
+                          209,
+                          294,
+                          42
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Ticket triage with a ke...",
+                            "rect": [
+                              0,
+                              1,
+                              277,
+                              40
+                            ],
+                            "characters": "Ticket triage with a keyboard-first queue and saved filters."
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Meta",
+                        "rect": [
+                          21,
+                          263,
+                          294,
+                          16
+                        ],
+                        "layout": {
+                          "mode": "HORIZONTAL",
+                          "reason": "flex",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Updated 5 days ago1 edi...",
+                            "rect": [
+                              0,
+                              0,
+                              294,
+                              16
+                            ],
+                            "characters": "Updated 5 days ago1 editor"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "Card 6",
+                    "rect": [
+                      720,
+                      324,
+                      336,
+                      300
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "flex",
+                      "itemSpacing": 12
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Thumb",
+                        "rect": [
+                          21,
+                          21,
+                          294,
+                          140
+                        ],
+                        "layout": {
+                          "mode": "NONE",
+                          "reason": "leaf",
+                          "itemSpacing": 0
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Heading 2",
+                        "rect": [
+                          21,
+                          173,
+                          294,
+                          24
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Design tokens",
+                            "rect": [
+                              0,
+                              0,
+                              119,
+                              24
+                            ],
+                            "characters": "Design tokens"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Single source of truth ...",
+                        "rect": [
+                          21,
+                          209,
+                          294,
+                          42
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Single source of truth ...",
+                            "rect": [
+                              0,
+                              1,
+                              258,
+                              40
+                            ],
+                            "characters": "Single source of truth for colour, type and spacing across products."
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Meta",
+                        "rect": [
+                          21,
+                          263,
+                          294,
+                          16
+                        ],
+                        "layout": {
+                          "mode": "HORIZONTAL",
+                          "reason": "flex",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "Updated 1 hour ago5 edi...",
+                            "rect": [
+                              0,
+                              0,
+                              294,
+                              16
+                            ],
+                            "characters": "Updated 1 hour ago5 editors"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": []
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Unsupported CSS</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; width: 900px; font-family: Inter, system-ui, sans-serif; background: #0f172a; color: #e2e8f0; }
+      .grid { display: flex; flex-wrap: wrap; gap: 24px; padding: 40px; }
+      .tile { width: 260px; height: 180px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 600; text-align: center; padding: 16px; }
+      .clip { background: #f97316; clip-path: polygon(0 0, 100% 0, 100% 75%, 0 100%); }
+      .skew { background: #22d3ee; color: #0f172a; transform: skewY(-6deg); }
+      .rotate { background: #a78bfa; transform: rotate(8deg); }
+      .blur { background: rgba(248, 250, 252, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(248, 250, 252, 0.3); }
+      .hue { background: #22c55e; filter: hue-rotate(120deg); }
+      .mask { background: #fbbf24; color: #0f172a; -webkit-mask-image: linear-gradient(black, transparent); mask-image: linear-gradient(black, transparent); }
+      .vertical { background: #f472b6; color: #0f172a; writing-mode: vertical-rl; }
+      .blend { background: #60a5fa; mix-blend-mode: multiply; }
+    </style>
+  </head>
+  <body>
+    <div class="grid">
+      <div class="tile clip">clip-path, expect a rasterised subtree</div>
+      <div class="tile skew">skewY, expect a rasterised subtree</div>
+      <div class="tile rotate">rotate, expect a real Figma rotation</div>
+      <div class="tile blur">backdrop-filter blur, expect BACKGROUND_BLUR</div>
+      <div class="tile hue">filter hue-rotate, expect a rasterised subtree</div>
+      <div class="tile mask">mask-image, expect a rasterised subtree</div>
+      <div class="tile vertical">vertical writing mode</div>
+      <div class="tile blend">mix-blend-mode multiply</div>
+    </div>
+  </body>
+</html>

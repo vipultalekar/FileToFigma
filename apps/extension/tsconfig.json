@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "composite": false,
+    "declaration": false,
+    "noEmit": true,
+    "types": ["chrome"],
+    "paths": {
+      "@web2figma/ir": ["../../packages/ir/src/index.ts"],
+      "@web2figma/shared": ["../../packages/shared/src/index.ts"],
+      "@web2figma/transform": ["../../packages/transform/src/index.ts"],
+      "@web2figma/capture": ["../../packages/capture/src/index.ts"]
+    }
+  },
+  "include": ["content", "background", "popup"]
+}

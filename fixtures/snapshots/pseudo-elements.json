@@ -1,0 +1,349 @@
+{
+  "version": 1,
+  "root": {
+    "kind": "frame",
+    "name": "Html",
+    "rect": [
+      0,
+      0,
+      800,
+      370
+    ],
+    "layout": {
+      "mode": "VERTICAL",
+      "reason": "single",
+      "itemSpacing": 0
+    },
+    "children": [
+      {
+        "kind": "frame",
+        "name": "“",
+        "rect": [
+          0,
+          0,
+          800,
+          370
+        ],
+        "layout": {
+          "mode": "VERTICAL",
+          "reason": "single",
+          "itemSpacing": 0
+        },
+        "children": [
+          {
+            "kind": "frame",
+            "name": "Stack",
+            "rect": [
+              0,
+              0,
+              800,
+              370
+            ],
+            "layout": {
+              "mode": "VERTICAL",
+              "reason": "flex",
+              "itemSpacing": 28
+            },
+            "children": [
+              {
+                "kind": "frame",
+                "name": "List",
+                "rect": [
+                  40,
+                  40,
+                  720,
+                  80
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "flex",
+                  "itemSpacing": 10
+                },
+                "children": [
+                  {
+                    "kind": "frame",
+                    "name": "List item",
+                    "rect": [
+                      0,
+                      0,
+                      720,
+                      20
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Container",
+                        "rect": [
+                          0,
+                          3,
+                          16,
+                          16
+                        ],
+                        "layout": {
+                          "mode": "NONE",
+                          "reason": "leaf",
+                          "itemSpacing": 0
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "text",
+                        "name": "Capture runs entirely o...",
+                        "rect": [
+                          28,
+                          0,
+                          245,
+                          20
+                        ],
+                        "characters": "Capture runs entirely on the machine"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "List item 2",
+                    "rect": [
+                      0,
+                      30,
+                      720,
+                      20
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Container",
+                        "rect": [
+                          0,
+                          3,
+                          16,
+                          16
+                        ],
+                        "layout": {
+                          "mode": "NONE",
+                          "reason": "leaf",
+                          "itemSpacing": 0
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "text",
+                        "name": "Pseudo elements survive...",
+                        "rect": [
+                          28,
+                          0,
+                          222,
+                          20
+                        ],
+                        "characters": "Pseudo elements survive the walk"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "frame",
+                    "name": "List item 3",
+                    "rect": [
+                      0,
+                      60,
+                      720,
+                      20
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "frame",
+                        "name": "Container",
+                        "rect": [
+                          0,
+                          3,
+                          16,
+                          16
+                        ],
+                        "layout": {
+                          "mode": "NONE",
+                          "reason": "leaf",
+                          "itemSpacing": 0
+                        },
+                        "children": []
+                      },
+                      {
+                        "kind": "text",
+                        "name": "Every degraded property...",
+                        "rect": [
+                          28,
+                          0,
+                          240,
+                          20
+                        ],
+                        "characters": "Every degraded property is reported"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Element picker",
+                "rect": [
+                  40,
+                  293,
+                  720,
+                  37
+                ],
+                "layout": {
+                  "mode": "VERTICAL",
+                  "reason": "single",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "frame",
+                    "name": "Button / Element picker",
+                    "rect": [
+                      0,
+                      0,
+                      135,
+                      37
+                    ],
+                    "layout": {
+                      "mode": "VERTICAL",
+                      "reason": "single",
+                      "itemSpacing": 0
+                    },
+                    "children": [
+                      {
+                        "kind": "text",
+                        "name": "Element picker",
+                        "rect": [
+                          14,
+                          8,
+                          107,
+                          21
+                        ],
+                        "characters": "Element picker"
+                      },
+                      {
+                        "kind": "frame",
+                        "name": "Button / NEW",
+                        "rect": [
+                          110,
+                          -8,
+                          23,
+                          14
+                        ],
+                        "layout": {
+                          "mode": "VERTICAL",
+                          "reason": "single",
+                          "itemSpacing": 0
+                        },
+                        "children": [
+                          {
+                            "kind": "text",
+                            "name": "NEW",
+                            "rect": [
+                              0,
+                              0,
+                              23,
+                              14
+                            ],
+                            "characters": "NEW"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Divider",
+                "rect": [
+                  40,
+                  148,
+                  720,
+                  24
+                ],
+                "layout": {
+                  "mode": "NONE",
+                  "reason": "leaf",
+                  "itemSpacing": 0
+                },
+                "children": [
+                  {
+                    "kind": "frame",
+                    "name": "Container",
+                    "rect": [
+                      0,
+                      12,
+                      720,
+                      1
+                    ],
+                    "layout": {
+                      "mode": "NONE",
+                      "reason": "leaf",
+                      "itemSpacing": 0
+                    },
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "kind": "frame",
+                "name": "Pull",
+                "rect": [
+                  40,
+                  218,
+                  720,
+                  29
+                ],
+                "layout": {
+                  "mode": "HORIZONTAL",
+                  "reason": "geometric",
+                  "itemSpacing": 23
+                },
+                "children": [
+                  {
+                    "kind": "text",
+                    "name": "“",
+                    "rect": [
+                      0,
+                      -10,
+                      21,
+                      90
+                    ],
+                    "characters": "“"
+                  },
+                  {
+                    "kind": "text",
+                    "name": "The converter should te...",
+                    "rect": [
+                      44,
+                      2,
+                      650,
+                      24
+                    ],
+                    "characters": "The converter should tell you what it could not do, rather than quietly dropping it."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "warnings": []
+}

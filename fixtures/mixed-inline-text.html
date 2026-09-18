@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mixed inline text</title>
+    <style>
+      body { margin: 0; width: 720px; font-family: Inter, system-ui, sans-serif; color: #1f2937; background: #fff; }
+      main { padding: 48px; display: flex; flex-direction: column; gap: 20px; }
+      h1 { margin: 0; font-size: 26px; }
+      p { margin: 0; font-size: 16px; line-height: 1.7; }
+      a { color: #2563eb; }
+      code { font-family: "SF Mono", Menlo, monospace; font-size: 14px; background: #f3f4f6; padding: 1px 5px; border-radius: 4px; }
+      .lead { font-size: 18px; color: #374151; }
+      em { font-style: italic; }
+      strong { font-weight: 700; }
+      s { text-decoration: line-through; color: #9ca3af; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Ranged styles inside one paragraph</h1>
+      <p class="lead">
+        A single paragraph can hold <strong>bold runs</strong>, <em>italic asides</em>,
+        <a href="https://example.com/docs">links to elsewhere</a>, inline <code>code spans</code>
+        and <s>struck-out text</s> without ever becoming five separate layers.
+      </p>
+      <p>
+        The capture emits one run per text node so the ranged styles survive, and normalisation
+        merges them back into a single editable text node with <strong>segments</strong>. Editing the
+        sentence in Figma should keep the <a href="https://example.com">link</a> attached to the same
+        words it started on.
+      </p>
+    </main>
+  </body>
+</html>

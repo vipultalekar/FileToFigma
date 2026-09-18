@@ -4,6 +4,9 @@ import { resolve } from 'node:path';
 export default defineConfig({
   test: {
     include: ['packages/**/*.test.ts', 'tools/**/*.test.ts', 'apps/**/*.test.ts'],
+    // Fixture tests drive a real browser; they are opt-in via `pnpm test:fixtures`.
+    exclude: process.env.FIXTURES === '1' ? [] : ['**/node_modules/**', 'tools/fixtures.test.ts'],
+    testTimeout: 30_000,
     environment: 'node',
     coverage: { provider: 'v8', include: ['packages/transform/src/**'] },
   },
