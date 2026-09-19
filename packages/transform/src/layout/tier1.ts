@@ -90,12 +90,20 @@ export function childSizingFromFlex(
           ? 'HUG'
           : 'FIXED';
 
-  const stretched = alignSelf === 'stretch' || alignSelf === 'normal';
+  const counterAxisKey = mainAxis === 'h' ? 'h' : 'w';
+  const counterDeclared = child.meta.declaredSize?.[counterAxisKey];
+  const hasFixedCounter = Boolean(
+    counterDeclared &&
+      counterDeclared !== 'auto' &&
+      counterDeclared !== '100%' &&
+      !counterDeclared.endsWith('%'),
+  );
+  const stretched = !hasFixedCounter && (alignSelf === 'stretch' || (alignSelf === 'normal' && !counterDeclared));
   const counter: Sizing = stretched
     ? 'FILL'
     : isText(child)
       ? 'HUG'
-      : declaredHug(child, mainAxis === 'h' ? 'h' : 'w') && isFrame(child)
+      : declaredHug(child, counterAxisKey) && isFrame(child)
         ? 'HUG'
         : 'FIXED';
 
@@ -106,14 +114,28 @@ export function childSizingFromFlex(
 export function constraintsFromInset(child: IRNode): { h: Constraint; v: Constraint } {
   const inset = child.meta.inset;
   const auto = (v: string | undefined): boolean => !v || v === 'auto';
+
+  // If an element has small fixed dimensions (e.g. icon, FAB, badge) but left & right are set,
+  // it was likely centered or aligned, not meant to stretch across the viewport.
+  const hasFixedSizeH = Boolean(
+    child.meta.declaredSize?.w &&
+      child.meta.declaredSize.w !== '100%' &&
+      !child.meta.declaredSize.w.endsWith('%'),
+  );
+  const hasFixedSizeV = Boolean(
+    child.meta.declaredSize?.h &&
+      child.meta.declaredSize.h !== '100%' &&
+      !child.meta.declaredSize.h.endsWith('%'),
+  );
+
   const h: Constraint = !auto(inset?.left) && !auto(inset?.right)
-    ? 'STRETCH'
-    : !auto(inset?.right)
+    ? hasFixedSizeH || child.rect.w < 120 ? 'CENTER' : 'STRETCH'
+    : !auto(inset?.right) && auto(inset?.left)
       ? 'MAX'
       : 'MIN';
   const v: Constraint = !auto(inset?.top) && !auto(inset?.bottom)
-    ? 'STRETCH'
-    : !auto(inset?.bottom)
+    ? hasFixedSizeV || child.rect.h < 120 ? 'CENTER' : 'STRETCH'
+    : !auto(inset?.bottom) && auto(inset?.top)
       ? 'MAX'
       : 'MIN';
   return { h, v };

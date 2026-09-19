@@ -32,14 +32,29 @@ let injectBundle: string | null = null;
 
 async function getBrowser(): Promise<Browser> {
   if (browser && browser.isConnected()) return browser;
-  browser = await chromium.launch({ headless: true });
+  browser = await chromium.launch({
+    headless: true,
+    args: ['--disable-web-security', '--disable-features=IsolateOrigins,site-per-process'],
+  });
   return browser;
 }
 
 async function getBundle(): Promise<string> {
   if (injectBundle) return injectBundle;
-  injectBundle = await readFile(resolve(here, 'inject.js'), 'utf8');
-  return injectBundle;
+  const paths = [
+    resolve(here, 'inject.js'),
+    resolve(here, '../dist/inject.js'),
+    resolve(here, '../../dist/inject.js'),
+  ];
+  for (const p of paths) {
+    try {
+      injectBundle = await readFile(p, 'utf8');
+      return injectBundle;
+    } catch {
+      // try next
+    }
+  }
+  throw new Error('inject.js bundle not found in dist or src');
 }
 
 export async function closeBrowser(): Promise<void> {
@@ -75,6 +90,7 @@ export async function renderUrl(url: string, options: RenderOptions = {}): Promi
   const context = await (await getBrowser()).newContext({
     viewport: { width, height },
     deviceScaleFactor: 1,
+    bypassCSP: true,
     // A dark capture is just the page rendered under prefers-color-scheme:
     // dark, which is how every modern site switches theme.
     colorScheme: options.colorScheme ?? 'light',
@@ -89,7 +105,10 @@ export async function renderUrl(url: string, options: RenderOptions = {}): Promi
   const page = await context.newPage();
   try {
     await gotoAndSettle(page, url, options.timeoutMs ?? 45_000);
-    await page.addScriptTag({ content: await getBundle() });
+    const bundle = await getBundle();
+    await page.evaluate(bundle).catch(async () => {
+      await page.addScriptTag({ content: bundle });
+    });
     const doc = (await page.evaluate(async () => {
       const api = (window as unknown as { __web2figma: { capture: () => Promise<unknown> } }).__web2figma;
       return api.capture();
@@ -111,6 +130,7 @@ export async function renderHtml(
   const context = await (await getBrowser()).newContext({
     viewport: { width, height: options.height ?? 900 },
     deviceScaleFactor: 1,
+    bypassCSP: true,
   });
   const page = await context.newPage();
   try {
@@ -118,7 +138,19 @@ export async function renderHtml(
     await page
       .waitForLoadState('networkidle', { timeout: 8_000 })
       .catch(() => undefined);
-    await page.addScriptTag({ content: await getBundle() });
+
+    // Expand viewport height to match document's actual scroll height
+    // so that bottom-fixed elements and the entire page layout render naturally
+    const scrollHeight = await page.evaluate(() =>
+      Math.max(document.documentElement?.scrollHeight ?? 0, document.body?.scrollHeight ?? 0)
+    );
+    if (scrollHeight > 0) {
+      await page.setViewportSize({ width, height: Math.max(options.height ?? 900, scrollHeight) });
+    }
+    const bundle = await getBundle();
+    await page.evaluate(bundle).catch(async () => {
+      await page.addScriptTag({ content: bundle });
+    });
     const doc = (await page.evaluate(async () => {
       const api = (window as unknown as { __web2figma: { capture: () => Promise<unknown> } }).__web2figma;
       return api.capture();
@@ -139,6 +171,7 @@ export async function screenshotHtml(
   const context = await (await getBrowser()).newContext({
     viewport: { width: options.width ?? 1440, height: options.height ?? 900 },
     deviceScaleFactor: 1,
+    bypassCSP: true,
   });
   const page = await context.newPage();
   try {
@@ -150,3 +183,41 @@ export async function screenshotHtml(
     await context.close();
   }
 }
+
+/** Decode an image to raw RGBA pixels for palette and icon detection. */
+export async function decodeImage(
+  dataUrl: string,
+): Promise<{ width: number; height: number; data: Uint8Array }> {
+  const browser = await getBrowser();
+  const page = await browser.newPage();
+  try {
+    const res = await page.evaluate(async (src) => {
+      const img = new Image();
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = src;
+      });
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Could not get 2d context');
+      ctx.drawImage(img, 0, 0);
+      const imgData = ctx.getImageData(0, 0, img.width, img.height);
+      return {
+        width: img.width,
+        height: img.height,
+        data: Array.from(imgData.data),
+      };
+    }, dataUrl);
+    return {
+      width: res.width,
+      height: res.height,
+      data: new Uint8Array(res.data),
+    };
+  } finally {
+    await page.close();
+  }
+}
+

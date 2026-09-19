@@ -177,6 +177,9 @@ export async function buildDocument(
   };
 
   const root = (await create(doc.root, null)) as FrameNode;
+  if (root && root.type === 'FRAME') {
+    root.clipsContent = true;
+  }
 
   /* 4 -- auto layout, bottom-up: sizing throws unless the parent has a mode. */
   options.onProgress?.(done, total, 'layout');
@@ -201,6 +204,9 @@ export async function buildDocument(
         'ABSOLUTE';
       node.x = Math.round(ir.rect.x);
       node.y = Math.round(ir.rect.y);
+      if ('resizeWithoutConstraints' in node) {
+        (node as FrameNode).resizeWithoutConstraints(Math.max(1, ir.rect.w), Math.max(1, ir.rect.h));
+      }
       if ('constraints' in node && ir.layout.constraints) {
         (node as ConstraintMixin).constraints = {
           horizontal: toConstraint(ir.layout.constraints.h),

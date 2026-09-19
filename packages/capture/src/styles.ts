@@ -235,7 +235,26 @@ export function extractMeta(el: Element, cs: CSSStyleDeclaration, parentCs: CSSS
   if (href) meta.href = href;
   if (Number.isFinite(zRaw)) meta.zIndex = zRaw;
   if (cs.position === 'absolute' || cs.position === 'fixed') {
-    meta.inset = { top: cs.top, right: cs.right, bottom: cs.bottom, left: cs.left };
+    let top = cs.top;
+    let right = cs.right;
+    let bottom = cs.bottom;
+    let left = cs.left;
+    if (typeof (el as unknown as { computedStyleMap?: () => { get(k: string): { toString(): string } | undefined } }).computedStyleMap === 'function') {
+      try {
+        const map = (el as unknown as { computedStyleMap: () => { get(k: string): { toString(): string } | undefined } }).computedStyleMap();
+        const t = map.get('top')?.toString();
+        const r = map.get('right')?.toString();
+        const b = map.get('bottom')?.toString();
+        const l = map.get('left')?.toString();
+        if (t === 'auto') top = 'auto';
+        if (r === 'auto') right = 'auto';
+        if (b === 'auto') bottom = 'auto';
+        if (l === 'auto') left = 'auto';
+      } catch {
+        // Fall back to resolved cs
+      }
+    }
+    meta.inset = { top, right, bottom, left };
   }
   const flexSelf = extractFlex(cs);
   if (flexSelf) {

@@ -187,10 +187,11 @@ export async function imageToHtml(
 
   const prompt = buildPrompt({ width, height: size.height, lines, palette, icons });
   let html = stripFence(await options.model({ system: SYSTEM_PROMPT, prompt, image }));
+  const maxIterations = options.iterations ?? 3;
   let iterations = 1;
   let diffRatio: number | undefined;
 
-  // Verification loop: render, diff, correct. Capped at three passes.
+  // Verification loop: render, diff, correct. Capped at maxIterations passes.
   if (options.renderHtml && options.decode && decoded) {
     let previous = 1;
     for (;;) {
@@ -199,7 +200,7 @@ export async function imageToHtml(
       const shot = await options.decode(renderedImage);
       const diff = diffImages(decoded, shot);
       diffRatio = diff.ratio;
-      if (!shouldIterate(iterations - 1, diff.ratio, previous)) break;
+      if (iterations >= maxIterations || !shouldIterate(iterations - 1, diff.ratio, previous)) break;
       previous = diff.ratio;
       html = stripFence(
         await options.model({

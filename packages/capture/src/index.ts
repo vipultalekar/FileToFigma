@@ -58,9 +58,16 @@ export async function captureDocument(
   const win = doc.defaultView ?? window;
   const warnings = new WarningSink();
 
+  const isWholeDocument = root === doc.documentElement || root === doc.body;
+
   let cleanup: (() => void) | null = null;
   if (!options.skipPrepare) {
-    const prep = await preparePage({ ...options, doc });
+    const prep = await preparePage({
+      ...options,
+      skipScroll: options.skipScroll ?? !isWholeDocument,
+      dismissOverlays: options.dismissOverlays ?? isWholeDocument,
+      doc,
+    });
     cleanup = prep.cleanup;
     for (const selector of prep.removedOverlays) {
       warnings.info('', 'overlay', `removed overlay ${selector}`);
@@ -75,7 +82,6 @@ export async function captureDocument(
     // Client rects are viewport-relative; the origin lifts them into document
     // space so the rects survive the scroll position of the capture.
     const origin = { x: win.scrollX, y: win.scrollY };
-    const isWholeDocument = root === doc.documentElement || root === doc.body;
     const rootBox = root.getBoundingClientRect();
     const bounds: Rect = isWholeDocument
       ? { x: 0, y: 0, w: doc.documentElement.scrollWidth, h: doc.documentElement.scrollHeight }

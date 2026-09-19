@@ -4,58 +4,431 @@
     <meta charset="utf-8" />
     <title>Web2Figma</title>
     <style>
+      :root {
+        --primary: #0d99ff;
+        --primary-hover: #0b85e0;
+        --bg: #ffffff;
+        --surface: #f9fafb;
+        --border: #e5e7eb;
+        --text: #111827;
+        --text-muted: #6b7280;
+        --success: #10b981;
+        --danger: #ef4444;
+      }
+      * {
+        box-sizing: border-box;
+      }
       body {
-        width: 264px;
+        width: 320px;
         margin: 0;
-        padding: 12px;
-        font: 13px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif;
-        color: #111827;
+        padding: 16px;
+        font: 13px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        color: var(--text);
+        background: var(--bg);
+        user-select: none;
       }
-      h1 {
-        font-size: 13px;
-        margin: 0 0 8px;
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
       }
-      button {
-        width: 100%;
-        padding: 8px;
-        margin-bottom: 6px;
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--text);
+      }
+      .logo-icon {
+        width: 22px;
+        height: 22px;
+        background: linear-gradient(135deg, #0d99ff 0%, #7b2cbf 100%);
         border-radius: 6px;
-        border: 1px solid #e5e7eb;
-        background: #fff;
-        font: inherit;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .badge {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 9999px;
+        background: #ecfdf5;
+        color: #059669;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .section-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .dimension-tag {
+        font-family: ui-monospace, monospace;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--primary);
+        background: #f0f9ff;
+        padding: 1px 5px;
+        border-radius: 4px;
+      }
+
+      /* Device Grid */
+      .device-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .device-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 4px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        gap: 4px;
+      }
+      .device-btn:hover {
+        border-color: #cbd5e1;
+        background: #f1f5f9;
+      }
+      .device-btn.active {
+        border-color: var(--primary);
+        background: #f0f9ff;
+        color: var(--primary);
+        font-weight: 600;
+      }
+      .device-btn svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .device-btn span {
+        font-size: 11px;
+      }
+
+      /* Orientation Bar */
+      .orientation-row {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 14px;
+        align-items: center;
+      }
+      .orientation-segmented {
+        display: flex;
+        background: var(--surface);
+        padding: 2px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        flex: 1;
+      }
+      .orient-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 5px 8px;
+        border: none;
+        background: transparent;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-muted);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .orient-btn.active {
+        background: #ffffff;
+        color: var(--text);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+        font-weight: 600;
+      }
+      .orient-btn svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+      }
+
+      /* Scope Selector */
+      .scope-row {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+      .scope-btn {
+        flex: 1;
+        padding: 7px 6px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.15s;
+      }
+      .scope-btn:hover {
+        border-color: #cbd5e1;
+      }
+      .scope-btn.active {
+        border-color: var(--primary);
+        background: #f0f9ff;
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      /* Options */
+      .options-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin-bottom: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .option-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--text);
         cursor: pointer;
       }
-      button.primary {
-        background: #3b82f6;
-        border-color: transparent;
-        color: #fff;
-        font-weight: 500;
+      .option-item input[type="checkbox"] {
+        cursor: pointer;
+        accent-color: var(--primary);
       }
-      label {
+
+      /* Mode Toggle */
+      .mode-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        font-size: 11px;
+      }
+      .mode-toggle span {
+        color: var(--text-muted);
+      }
+
+      /* Primary Button */
+      .btn-primary {
+        width: 100%;
+        padding: 10px 14px;
+        background: var(--primary);
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: background 0.15s;
+        box-shadow: 0 1px 3px rgba(13, 153, 255, 0.25);
+      }
+      .btn-primary:hover {
+        background: var(--primary-hover);
+      }
+      .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .btn-secondary {
+        width: 100%;
+        padding: 7px;
+        background: transparent;
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-top: 6px;
+      }
+      .btn-secondary:hover {
+        background: var(--surface);
+        color: var(--text);
+      }
+
+      /* Status Area */
+      .status-box {
+        margin-top: 10px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        line-height: 1.4;
+        display: none;
+      }
+      .status-box.info {
         display: flex;
         align-items: center;
         gap: 6px;
-        color: #6b7280;
-        margin-bottom: 4px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #15803d;
       }
-      .status {
-        margin-top: 8px;
-        min-height: 18px;
-        color: #6b7280;
+      .status-box.loading {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        color: #0369a1;
       }
-      .status.error {
+      .status-box.error {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
         color: #b91c1c;
+      }
+
+      .footer-tip {
+        margin-top: 10px;
+        font-size: 11px;
+        color: var(--text-muted);
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+      }
+      .footer-tip kbd {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        padding: 1px 4px;
+        font-size: 10px;
+        font-family: inherit;
+        color: var(--text);
       }
     </style>
   </head>
   <body>
-    <h1>Web2Figma</h1>
-    <button id="capture" class="primary">Capture page</button>
-    <button id="pick">Pick an element</button>
-    <label><input type="checkbox" id="overlays" checked /> Dismiss cookie banners</label>
-    <label><input type="checkbox" id="autolayout" checked /> Infer Auto Layout</label>
-    <label><input type="checkbox" id="relay" /> Send to local relay</label>
-    <div class="status" id="status"></div>
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">F</div>
+        <span>Web2Figma</span>
+      </div>
+      <div class="badge">Plugin Ready</div>
+    </div>
+
+    <!-- Device Selection -->
+    <div class="section-label">
+      <span>Device &amp; Viewport</span>
+      <span class="dimension-tag" id="dim-tag">1440 × 900</span>
+    </div>
+    <div class="device-grid">
+      <button type="button" class="device-btn active" data-device="desktop" data-w="1440" data-h="900" title="Desktop 1440px">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <span>Desktop</span>
+      </button>
+      <button type="button" class="device-btn" data-device="laptop" data-w="1024" data-h="768" title="Laptop 1024px">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg>
+        <span>Laptop</span>
+      </button>
+      <button type="button" class="device-btn" data-device="tablet" data-w="768" data-h="1024" title="Tablet 768px">
+        <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="18" r="1"/></svg>
+        <span>Tablet</span>
+      </button>
+      <button type="button" class="device-btn" data-device="mobile" data-w="390" data-h="844" title="Mobile 390px">
+        <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        <span>Mobile</span>
+      </button>
+    </div>
+
+    <!-- Orientation Selection -->
+    <div class="orientation-row" id="orient-row">
+      <div class="orientation-segmented">
+        <button type="button" class="orient-btn active" data-orient="portrait">
+          <svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/></svg>
+          Portrait
+        </button>
+        <button type="button" class="orient-btn" data-orient="landscape">
+          <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>
+          Landscape
+        </button>
+      </div>
+    </div>
+
+    <!-- Capture Scope -->
+    <div class="section-label">
+      <span>Capture Scope</span>
+    </div>
+    <div class="scope-row">
+      <button type="button" class="scope-btn active" data-scope="full">Full Page</button>
+      <button type="button" class="scope-btn" data-scope="viewport">Visible Area</button>
+      <button type="button" class="scope-btn" id="btn-pick">Pick Element</button>
+    </div>
+
+    <!-- Options Box -->
+    <div class="options-box">
+      <label class="option-item">
+        <span>Direct Canvas Paste (Ctrl+V)</span>
+        <input type="checkbox" id="direct-paste" checked />
+      </label>
+      <label class="option-item">
+        <span>Dismiss Cookie Banners</span>
+        <input type="checkbox" id="overlays" checked />
+      </label>
+      <label class="option-item">
+        <span>Infer Auto Layout</span>
+        <input type="checkbox" id="autolayout" checked />
+      </label>
+      <label class="option-item">
+        <span>Send to Local Relay (Port 3579)</span>
+        <input type="checkbox" id="relay" />
+      </label>
+    </div>
+
+    <!-- Action Button -->
+    <button type="button" id="btn-capture" class="btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span>Capture &amp; Copy for Figma</span>
+    </button>
+
+    <!-- Status Message -->
+    <div class="status-box" id="status-box"></div>
+
+    <!-- Footer Tip -->
+    <div class="footer-tip">
+      <span>Direct Canvas Paste: press</span> <kbd>Ctrl+V</kbd> <span>on Figma canvas</span>
+    </div>
+
     <script src="popup.js"></script>
   </body>
 </html>

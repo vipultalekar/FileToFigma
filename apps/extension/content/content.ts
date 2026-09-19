@@ -2,21 +2,22 @@ import type { IRDocument } from '@web2figma/ir';
 import { captureDocument, startPicker } from '@web2figma/capture';
 import { encodePayload } from '@web2figma/shared';
 import { transformDocument } from '@web2figma/transform';
+import { createFigmaH2DClipboardHtml } from './figma-h2d';
 
 /**
- * Content script (PRD section 5 and 6).
+ * Content script.
  *
- * Runs capture in the page's own world so authenticated sessions, applied CSS
- * and rendered geometry are all the real thing. Images that taint the canvas
- * are fetched through the background script, which holds the host permissions
- * the page does not.
+ * Runs capture in the page's context. Supports both:
+ * 1. Direct Figma Canvas Paste (Figma native H2D format for Ctrl+V)
+ * 2. Web2Figma IR / Relay format
  */
 
 interface CaptureRequest {
   dismissOverlays?: boolean;
   autoLayout?: boolean;
   transport?: 'clipboard' | 'relay';
-  /** Set by the background worker: no popup is open, so the page copies. */
+  directPaste?: boolean;
+  scope?: 'full' | 'viewport';
   copyHere?: boolean;
 }
 
@@ -31,8 +32,10 @@ interface CaptureOutcome {
   bytes?: number;
   transport?: string;
   error?: string;
-  /** Returned when the caller (the popup) will do the clipboard write itself. */
   payload?: string;
+  directPaste?: boolean;
+  htmlPayload?: string;
+  textPayload?: string;
 }
 
 const fetchViaBackground = async (url: string): Promise<string | null> => {
@@ -58,58 +61,155 @@ function toast(message: string, tone: 'info' | 'error' = 'info'): void {
     'z-index:2147483647',
     `background:${tone === 'error' ? '#b91c1c' : '#111827'}`,
     'color:#fff',
-    'padding:10px 14px',
+    'padding:10px 16px',
     'border-radius:8px',
     'font:13px/1.4 system-ui,sans-serif',
     'box-shadow:0 8px 24px rgba(0,0,0,0.25)',
+    'pointer-events:none',
+    'transition:opacity 0.3s',
   ].join(';');
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 4000);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 300);
+  }, 4000);
 }
 
 /**
- * Copy from inside the page.
- *
- * navigator.clipboard.writeText refuses to run while the document is not
- * focused, which is exactly the case when the extension popup is open: the
- * popup holds focus, not the page. So this path is only used when the capture
- * was started from a keyboard shortcut, where the page really is focused; the
- * popup copies the payload itself.
+ * Copy directly from page context when focused.
  */
+async function copyH2DFromPage(htmlPayload: string, textPayload: string): Promise<boolean> {
+  // 1. Try modern Async Clipboard API
+  try {
+    window.focus();
+    const item = new ClipboardItem({
+      'text/html': new Blob([htmlPayload], { type: 'text/html' }),
+      'text/plain': new Blob([textPayload], { type: 'text/plain' }),
+    });
+    await navigator.clipboard.write([item]);
+    return true;
+  } catch (err) {
+    console.warn('Async clipboard write failed, trying fallback copy:', err);
+  }
+
+  // 2. Fallback via document.execCommand('copy') with copy event listener
+  try {
+    let success = false;
+    const listener = (e: ClipboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.clipboardData?.clearData();
+      e.clipboardData?.setData('text/html', htmlPayload);
+      e.clipboardData?.setData('text/plain', textPayload);
+      success = true;
+    };
+    document.addEventListener('copy', listener, { capture: true, once: true });
+    document.execCommand('copy');
+    document.removeEventListener('copy', listener, { capture: true });
+    if (success) return true;
+  } catch (err) {
+    console.warn('execCommand copy fallback failed:', err);
+  }
+
+  return false;
+}
+
 async function copyFromPage(payload: string): Promise<{ ok: boolean; error?: string }> {
-  if (document.hasFocus()) {
-    try {
+  try {
+    window.focus();
+    if (document.hasFocus()) {
       await navigator.clipboard.writeText(payload);
       return { ok: true };
-    } catch {
-      // Fall through to the legacy path below.
     }
+  } catch {
+    // Fall through to textarea
   }
 
-  // execCommand still works from a focused textarea in an unfocused document in
-  // some Chrome versions, and costs nothing to try.
-  const area = document.createElement('textarea');
-  area.value = payload;
-  area.setAttribute('readonly', '');
-  area.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
-  document.body.appendChild(area);
-  area.select();
-  let copied = false;
   try {
-    copied = document.execCommand('copy');
+    const area = document.createElement('textarea');
+    area.value = payload;
+    area.style.position = 'fixed';
+    area.style.left = '0';
+    area.style.top = '0';
+    area.style.width = '20px';
+    area.style.height = '20px';
+    area.style.opacity = '0.01';
+    area.style.zIndex = '2147483647';
+    document.body.appendChild(area);
+    area.focus();
+    area.select();
+    area.setSelectionRange(0, payload.length);
+    const copied = document.execCommand('copy');
+    area.remove();
+    if (copied) return { ok: true };
   } catch {
-    copied = false;
+    // Fall through to manual button
   }
-  area.remove();
-  if (copied) return { ok: true };
-  return { ok: false, error: 'the page could not write to the clipboard' };
+
+  showManualCopyPrompt(payload);
+  return { ok: true };
 }
 
-/**
- * Chrome's extension messaging tops out well below the size of a heavy page's
- * capture, and the failure is an opaque rejection rather than a useful error.
- * Anything approaching the limit goes to the relay instead.
- */
+function showManualCopyPrompt(payload: string): void {
+  const existing = document.getElementById('web2figma-manual-copy');
+  if (existing) existing.remove();
+
+  const container = document.createElement('div');
+  container.id = 'web2figma-manual-copy';
+  container.style.cssText = [
+    'position:fixed',
+    'left:50%',
+    'bottom:24px',
+    'transform:translateX(-50%)',
+    'z-index:2147483647',
+    'background:#111827',
+    'color:#fff',
+    'padding:12px 18px',
+    'border-radius:10px',
+    'font:13px/1.4 system-ui,sans-serif',
+    'box-shadow:0 12px 32px rgba(0,0,0,0.35)',
+    'display:flex',
+    'align-items:center',
+    'gap:12px',
+    'border:1px solid #374151',
+  ].join(';');
+
+  const label = document.createElement('span');
+  label.textContent = 'Element captured!';
+
+  const btn = document.createElement('button');
+  btn.textContent = '📋 Click to Copy for Figma';
+  btn.style.cssText = [
+    'background:#0d99ff',
+    'color:#fff',
+    'border:none',
+    'padding:6px 14px',
+    'border-radius:6px',
+    'font-weight:600',
+    'cursor:pointer',
+  ].join(';');
+
+  btn.onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(payload);
+      btn.textContent = '✅ Copied!';
+      btn.style.background = '#10b981';
+      setTimeout(() => container.remove(), 1500);
+    } catch {
+      toast('Clipboard write failed', 'error');
+    }
+  };
+
+  const closeBtn = document.createElement('span');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = 'cursor:pointer;color:#9ca3af;margin-left:4px;font-size:14px;';
+  closeBtn.onclick = () => container.remove();
+
+  container.append(label, btn, closeBtn);
+  document.body.appendChild(container);
+  setTimeout(() => container.remove(), 12000);
+}
+
 const MESSAGE_LIMIT = 30 * 1024 * 1024;
 
 async function deliver(
@@ -120,67 +220,158 @@ async function deliver(
   const payload = await encodePayload(doc);
   const tooBigToMessage = !copyHere && payload.length > MESSAGE_LIMIT;
 
+  // Always attempt to send to local relay in background (best-effort sync)
+  try {
+    void chrome.runtime.sendMessage({
+      type: 'post-relay',
+      doc,
+    });
+  } catch {
+    // Relay may not be running, ignore
+  }
+
   if (transport === 'relay' || tooBigToMessage) {
     const response = (await chrome.runtime.sendMessage({
       type: 'post-relay',
       doc,
     })) as { ok: boolean; error?: string };
     if (response?.ok) {
-      toast('Sent to the local relay. Open the Figma plugin and press Latest capture.');
+      toast('Sent to local relay. Open the Figma plugin and press Latest capture.');
       return { ok: true, bytes: payload.length, transport: 'relay' };
     }
     if (tooBigToMessage) {
       const mb = (payload.length / 1024 / 1024).toFixed(0);
       toast(
-        `This capture is ${mb}MB, too large for the clipboard. Start the local relay and try again.`,
+        `Capture is ${mb}MB, too large for clipboard. Start local relay (pnpm relay).`,
         'error',
       );
       return {
         ok: false,
         bytes: payload.length,
-        error: `capture is ${mb}MB; run the local relay (pnpm relay) and tick "Send to local relay"`,
+        error: `Capture is ${mb}MB; use relay`,
       };
     }
     toast(`Relay unavailable (${response?.error ?? 'no response'}), copying instead`, 'error');
   }
 
-  // Started from the popup: hand the payload back and let the popup, which is
-  // the focused document, do the clipboard write.
   if (!copyHere) {
     return { ok: true, bytes: payload.length, transport: 'clipboard', payload };
   }
 
   const copy = await copyFromPage(payload);
   if (copy.ok) {
-    toast('Copied. Paste it into the Web2Figma plugin.');
     return { ok: true, bytes: payload.length, transport: 'clipboard' };
   }
 
-  // Last resort: show the payload so the capture is not lost.
-  const area = document.createElement('textarea');
-  area.value = payload;
-  area.style.cssText =
-    'position:fixed;left:8px;bottom:8px;width:320px;height:120px;z-index:2147483647;';
-  document.body.appendChild(area);
-  area.focus();
-  area.select();
-  toast('Could not reach the clipboard. Press Ctrl+C to copy the box that appeared.', 'error');
   return { ok: false, bytes: payload.length, error: copy.error ?? 'clipboard unavailable' };
 }
 
-async function runCapture(
-  root: Element,
-  options: {
-    dismissOverlays?: boolean;
-    autoLayout?: boolean;
-    transport?: 'clipboard' | 'relay';
-    /** True when no popup is open, so the page itself must do the copy. */
-    copyHere?: boolean;
-  },
+/**
+ * Capture with native Figma H2D format (for direct Ctrl+V on Figma canvas)
+ */
+async function captureNativeFigma(
+  selector: string,
+  options: CaptureRequest,
 ): Promise<CaptureOutcome> {
-  toast('Capturing...');
+  const win = window as unknown as {
+    figma?: {
+      serializeForDesign?: (selector?: string) => Promise<string>;
+      captureForDesign?: (options: { selector?: string }) => Promise<{ success: boolean }>;
+    };
+  };
+
+  if (!win.figma?.serializeForDesign) {
+    try {
+      await chrome.runtime.sendMessage({ type: 'ensure-capture-script' });
+      await new Promise((r) => setTimeout(r, 80));
+    } catch {}
+  }
+
+  if (win.figma?.serializeForDesign) {
+    try {
+      const serialized = await win.figma.serializeForDesign(selector);
+      const htmlPayload = createFigmaH2DClipboardHtml(serialized);
+
+      if (!options.copyHere) {
+        return {
+          ok: true,
+          directPaste: true,
+          htmlPayload,
+          textPayload: serialized,
+          transport: 'clipboard',
+        };
+      }
+
+      const copied = await copyH2DFromPage(htmlPayload, serialized);
+      if (copied) {
+        toast('✅ Page copied! Go to Figma and press Ctrl+V directly on canvas.');
+        return { ok: true, directPaste: true, transport: 'clipboard' };
+      }
+    } catch (err) {
+      console.warn('Native capture failed, falling back to Web2Figma IR:', err);
+    }
+  }
+
+  // Fallback to standard IR if native serializer is unavailable
+  return runStandardCapture(document.documentElement, options);
+}
+
+/**
+ * Capture a specific picked element with native Figma H2D format (for direct Ctrl+V on Figma canvas)
+ */
+async function captureNativeFigmaElement(
+  target: Element,
+  options: CaptureRequest,
+): Promise<CaptureOutcome> {
+  const win = window as unknown as {
+    figma?: {
+      serializeForDesign?: (selector?: string) => Promise<string>;
+    };
+  };
+
+  toast('Capturing element for Figma direct paste...');
+
+  if (!win.figma?.serializeForDesign) {
+    try {
+      await chrome.runtime.sendMessage({ type: 'ensure-capture-script' });
+      await new Promise((r) => setTimeout(r, 80));
+    } catch {}
+  }
+
+  if (win.figma?.serializeForDesign) {
+    const pickId = `w2f-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    target.setAttribute('data-w2f-pick', pickId);
+    const selector = `[data-w2f-pick="${pickId}"]`;
+
+    try {
+      const serialized = await win.figma.serializeForDesign(selector);
+      const htmlPayload = createFigmaH2DClipboardHtml(serialized);
+
+      const copied = await copyH2DFromPage(htmlPayload, serialized);
+      if (copied) {
+        toast('✅ Element copied! Go to Figma and press Ctrl+V directly on the canvas.');
+        return { ok: true, directPaste: true, transport: 'clipboard' };
+      }
+    } catch (err) {
+      console.warn('Native element capture failed, falling back to Web2Figma IR:', err);
+    } finally {
+      target.removeAttribute('data-w2f-pick');
+    }
+  }
+
+  // Fallback to standard IR if native serializer is unavailable or failed
+  return runStandardCapture(target, { ...options, copyHere: true });
+}
+
+async function runStandardCapture(
+  root: Element,
+  options: CaptureRequest,
+): Promise<CaptureOutcome> {
+  const isSingle = root !== document.documentElement && root !== document.body;
+  toast(isSingle ? 'Capturing element...' : 'Capturing...');
   const { doc: raw, elapsedMs } = await captureDocument(root, {
-    dismissOverlays: options.dismissOverlays ?? true,
+    dismissOverlays: isSingle ? false : (options.dismissOverlays ?? true),
+    skipScroll: isSingle,
     fetchViaBackground,
   });
   const { doc, stats } = transformDocument(raw, {
@@ -191,20 +382,30 @@ async function runCapture(
       ? 0
       : Math.round((stats.layout.withLayout / stats.layout.frames) * 100);
   const result = await deliver(doc, options.transport ?? 'clipboard', options.copyHere ?? false);
-  toast(
-    `${stats.nodesOut} nodes, ${coverage}% auto layout, ${(elapsedMs / 1000).toFixed(1)}s capture`,
-  );
+  if (result.ok) {
+    toast(
+      `✅ Captured ${stats.nodesOut} nodes (${coverage}% auto layout, ${(elapsedMs / 1000).toFixed(1)}s). Paste into Web2Figma plugin in Figma!`,
+    );
+  } else {
+    toast(`Capture error: ${result.error ?? 'could not copy to clipboard'}`, 'error');
+  }
   return { ...result, nodes: stats.nodesOut };
 }
 
 chrome.runtime.onMessage.addListener((request: Request, _sender, sendResponse) => {
   if (request.type === 'ping') {
-    sendResponse({ ok: true });
+    const win = window as unknown as { figma?: { serializeForDesign?: unknown } };
+    sendResponse({ ok: true, hasNative: Boolean(win.figma?.serializeForDesign) });
     return false;
   }
 
   if (request.type === 'capture-page') {
-    void runCapture(document.documentElement, request).then(sendResponse, (err: unknown) =>
+    const isDirect = request.directPaste !== false;
+    const promise = isDirect
+      ? captureNativeFigma('body', request)
+      : runStandardCapture(document.documentElement, request);
+
+    void promise.then(sendResponse, (err: unknown) =>
       sendResponse({ ok: false, error: String(err) }),
     );
     return true;
@@ -218,9 +419,12 @@ chrome.runtime.onMessage.addListener((request: Request, _sender, sendResponse) =
         if (elements.length > 1) {
           toast(`Capturing ${elements.length} elements`);
         }
-        // By the time an element is picked the popup has closed, so the page
-        // is focused and can reach the clipboard itself.
-        void runCapture(target, { ...request, copyHere: true });
+        const isDirect = request.directPaste !== false;
+        if (isDirect) {
+          void captureNativeFigmaElement(target, request);
+        } else {
+          void runStandardCapture(target, { ...request, copyHere: true });
+        }
       },
       onCancel: () => toast('Picker cancelled'),
     });
@@ -231,5 +435,4 @@ chrome.runtime.onMessage.addListener((request: Request, _sender, sendResponse) =
   return false;
 });
 
-// Announce readiness so the popup can tell an injected tab from a stale one.
 void chrome.runtime.sendMessage({ type: 'content-ready', href: location.href }).catch(() => undefined);

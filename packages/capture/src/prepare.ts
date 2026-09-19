@@ -14,6 +14,8 @@ export interface PrepareOptions {
   /** Cap on image decode waits. */
   decodeTimeout?: number;
   doc?: Document;
+  /** Skip the full page scroll (e.g. for element picking or static iframes). */
+  skipScroll?: boolean;
 }
 
 export interface PrepareResult {
@@ -56,15 +58,17 @@ export async function preparePage(options: PrepareOptions = {}): Promise<Prepare
 
   // 1. Scroll the full height to trigger lazy loading and IntersectionObserver.
   const originalScroll = win.scrollY;
-  const stepDelay = options.scrollDelay ?? 120;
-  const viewportHeight = win.innerHeight || 800;
-  const fullHeight = doc.documentElement.scrollHeight;
-  for (let y = 0; y < fullHeight; y += viewportHeight) {
-    win.scrollTo(0, y);
+  if (!options.skipScroll) {
+    const stepDelay = options.scrollDelay ?? 120;
+    const viewportHeight = win.innerHeight || 800;
+    const fullHeight = doc.documentElement.scrollHeight;
+    for (let y = 0; y < fullHeight; y += viewportHeight) {
+      win.scrollTo(0, y);
+      await sleep(stepDelay);
+    }
+    win.scrollTo(0, 0);
     await sleep(stepDelay);
   }
-  win.scrollTo(0, 0);
-  await sleep(stepDelay);
 
   // 2. Fonts.
   let fontsReady = false;
@@ -138,7 +142,9 @@ export async function preparePage(options: PrepareOptions = {}): Promise<Prepare
     imagesTimedOut: timedOut,
     cleanup: () => {
       for (const c of cleanups) c();
-      win.scrollTo(0, originalScroll);
+      if (!options.skipScroll) {
+        win.scrollTo(0, originalScroll);
+      }
     },
   };
 }

@@ -99,13 +99,35 @@ export async function decodeClipboard(payload: string): Promise<IRDocument> {
 
 export const RELAY_ORIGIN = 'http://localhost:3579';
 
-/** T2: local relay. Returns null when the relay is not running. */
-export async function relayHealth(): Promise<boolean> {
+export interface RelayHealthInfo {
+  ok: boolean;
+  geminiConfigured?: boolean;
+  latestId?: string | null;
+  latestAt?: number | null;
+  latestSource?: string | null;
+}
+
+/** T2: local relay health check. */
+export async function relayHealth(): Promise<RelayHealthInfo> {
   try {
     const res = await fetch(`${RELAY_ORIGIN}/health`, { method: 'GET' });
-    return res.ok;
+    if (!res.ok) return { ok: false };
+    const data = (await res.json()) as {
+      ok?: boolean;
+      geminiConfigured?: boolean;
+      latestId?: string | null;
+      latestAt?: number | null;
+      latestSource?: string | null;
+    };
+    return {
+      ok: Boolean(data.ok),
+      geminiConfigured: data.geminiConfigured,
+      latestId: data.latestId,
+      latestAt: data.latestAt,
+      latestSource: data.latestSource,
+    };
   } catch {
-    return false;
+    return { ok: false };
   }
 }
 
@@ -138,7 +160,7 @@ export async function relayRender(
 
 export async function relayImage(
   dataUrl: string,
-  options: { width?: number } = {},
+  options: { width?: number; apiKey?: string } = {},
 ): Promise<IRDocument> {
   const res = await fetch(`${RELAY_ORIGIN}/image`, {
     method: 'POST',

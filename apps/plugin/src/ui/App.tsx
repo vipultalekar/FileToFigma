@@ -12,7 +12,7 @@ import {
   relayRender,
 } from './transport.js';
 
-type Tab = 'paste' | 'url' | 'html' | 'image';
+type Tab = 'url' | 'html' | 'image';
 
 /** Every payload the extension writes starts with this. */
 const PAYLOAD_PREFIX = 'W2F1:';
@@ -25,10 +25,17 @@ interface Status {
 }
 
 export function App(): JSX.Element {
-  const [tab, setTab] = useState<Tab>('paste');
+  const [tab, setTab] = useState<Tab>('url');
   const [status, setStatus] = useState<Status>({ kind: 'idle', message: 'Ready' });
   const [report, setReport] = useState<ConversionReport | null>(null);
-  const [relayUp, setRelayUp] = useState<boolean | null>(null);
+  const [relayStatus, setRelayStatus] = useState<{ up: boolean | null; geminiConfigured?: boolean }>({
+    up: null,
+  });
+  const [newRelayCapture, setNewRelayCapture] = useState<{
+    id: string;
+    source?: string;
+  } | null>(null);
+  const lastImportedIdRef = useRef<string | null>(null);
   const [autoLayout, setAutoLayout] = useState(true);
   const [createStyles, setCreateStyles] = useState(false);
   const bridgeRef = useRef<SandboxBridge | null>(null);
@@ -53,9 +60,27 @@ export function App(): JSX.Element {
     return b;
   }, []);
 
-  useEffect(() => {
-    void relayHealth().then(setRelayUp);
+  const checkRelay = useCallback(async () => {
+    const info = await relayHealth();
+    setRelayStatus({ up: info.ok, geminiConfigured: info.geminiConfigured });
+    if (info.ok && info.latestId && info.latestId !== lastImportedIdRef.current) {
+      setNewRelayCapture({
+        id: info.latestId,
+        source: info.latestSource ? String(info.latestSource).slice(0, 30) : undefined,
+      });
+    }
   }, []);
+
+  useEffect(() => {
+    void checkRelay();
+    const interval = setInterval(() => void checkRelay(), 3000);
+    const onFocus = () => void checkRelay();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [checkRelay]);
 
   const run = useCallback(
     async (label: string, produce: () => Promise<IRDocument>) => {
@@ -76,6 +101,37 @@ export function App(): JSX.Element {
     },
     [autoLayout, bridge, createStyles],
   );
+
+  const importLatest = useCallback(() => {
+    void run('Fetching latest capture from relay', async () => {
+      const doc = await relayLatest();
+      if (!doc) throw new Error('No capture found on relay yet. Pick an element or capture a page first.');
+      if (newRelayCapture?.id) {
+        lastImportedIdRef.current = newRelayCapture.id;
+      }
+      setNewRelayCapture(null);
+      return doc;
+    });
+  }, [run, newRelayCapture]);
+
+  const pasteFromClipboard = useCallback(async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text && text.trim().startsWith(PAYLOAD_PREFIX)) {
+        void run('Decoding payload', () => decodeClipboard(text));
+        return;
+      }
+      setStatus({
+        kind: 'error',
+        message: 'Clipboard is empty or does not contain a Web2Figma capture.',
+      });
+    } catch {
+      setStatus({
+        kind: 'error',
+        message: 'Please press Ctrl+V anywhere in this window to paste.',
+      });
+    }
+  }, [run]);
 
   // A paste anywhere in the plugin panel counts, not only inside the textarea:
   // in the Figma desktop app it is easy to press Ctrl+V while focus sits
@@ -118,19 +174,54 @@ export function App(): JSX.Element {
         </div>
       </header>
 
+      {newRelayCapture && (
+        <div className="new-capture-banner">
+          <div className="new-capture-text">
+            <span>⚡ New capture ready{newRelayCapture.source ? ` (${newRelayCapture.source})` : ''}</span>
+          </div>
+          <button className="btn-banner-import" onClick={importLatest}>
+            Import Now
+          </button>
+        </div>
+      )}
+
+      <div className="quick-toolbar">
+        <button
+          className="btn-quick"
+          title="Paste Web2Figma capture from clipboard (Ctrl+V)"
+          onClick={() => void pasteFromClipboard()}
+        >
+          📋 Paste Capture (Ctrl+V)
+        </button>
+        {relayStatus.up && (
+          <button
+            className="btn-quick relay-btn"
+            title="Fetch the latest capture from the local relay"
+            onClick={importLatest}
+          >
+            ⚡ Latest Capture
+          </button>
+        )}
+      </div>
+
       <nav className="tabs">
-        {(['paste', 'url', 'html', 'image'] as Tab[]).map((t) => (
+        {(['url', 'html', 'image'] as Tab[]).map((t) => (
           <button key={t} className={t === tab ? 'tab active' : 'tab'} onClick={() => setTab(t)}>
-            {t === 'paste' ? 'Paste' : t === 'url' ? 'URL' : t === 'html' ? 'Local HTML' : 'Image'}
+            {t === 'url' ? 'URL' : t === 'html' ? 'Local HTML' : 'Image'}
           </button>
         ))}
       </nav>
 
       <main>
-        {tab === 'paste' && <PasteTab run={run} />}
-        {tab === 'url' && <UrlTab run={run} relayUp={relayUp} />}
+        {tab === 'url' && <UrlTab run={run} relayUp={relayStatus.up} />}
         {tab === 'html' && <HtmlTab run={run} />}
-        {tab === 'image' && <ImageTab run={run} relayUp={relayUp} />}
+        {tab === 'image' && (
+          <ImageTab
+            run={run}
+            relayUp={relayStatus.up}
+            geminiConfigured={relayStatus.geminiConfigured}
+          />
+        )}
       </main>
 
       <StatusBar status={status} />
@@ -152,75 +243,6 @@ interface TabProps {
   run: (label: string, produce: () => Promise<IRDocument>) => Promise<void>;
 }
 
-function PasteTab({ run }: TabProps): JSX.Element {
-  const [value, setValue] = useState('');
-  const [note, setNote] = useState('');
-  const field = useRef<HTMLTextAreaElement>(null);
-
-  // Figma's desktop app sends keystrokes to the canvas unless a field inside
-  // the plugin iframe holds focus, so the box focuses itself on open.
-  useEffect(() => {
-    field.current?.focus();
-  }, []);
-
-  const readClipboard = async (): Promise<void> => {
-    setNote('');
-    try {
-      const text = await navigator.clipboard.readText();
-      if (!text.trim()) {
-        setNote('The clipboard is empty. Capture a page with the extension first.');
-        return;
-      }
-      setValue(text);
-      await run('Decoding payload', () => decodeClipboard(text));
-    } catch (err) {
-      setNote(
-        `Figma would not let the plugin read the clipboard (${
-          err instanceof Error ? err.message : String(err)
-        }). Click inside the box below and press Ctrl+V.`,
-      );
-      field.current?.focus();
-    }
-  };
-
-  return (
-    <section>
-      <p className="hint">
-        Capture a page with the Web2Figma extension, then bring the payload over. Pasting
-        anywhere in this panel works.
-      </p>
-      <div className="row">
-        <button className="primary" onClick={() => void readClipboard()}>
-          Read clipboard
-        </button>
-        <button
-          disabled={value.trim() === ''}
-          onClick={() => void run('Decoding payload', () => decodeClipboard(value))}
-        >
-          Import payload
-        </button>
-      </div>
-      {note && <p className="warn">{note}</p>}
-      <textarea
-        ref={field}
-        value={value}
-        placeholder="...or click here and press Ctrl+V"
-        onChange={(e) => setValue(e.currentTarget.value)}
-        onPaste={(e) => {
-          const text = e.clipboardData.getData('text');
-          if (text) {
-            setValue(text);
-            void run('Decoding payload', () => decodeClipboard(text));
-          }
-        }}
-      />
-      {value.trim() !== '' && (
-        <p className="hint">{value.length.toLocaleString()} characters in the box</p>
-      )}
-    </section>
-  );
-}
-
 function UrlTab({ run, relayUp }: TabProps & { relayUp: boolean | null }): JSX.Element {
   const [url, setUrl] = useState('');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -234,19 +256,63 @@ function UrlTab({ run, relayUp }: TabProps & { relayUp: boolean | null }): JSX.E
     );
   };
 
+  const getCleanUrl = (): string => {
+    const trimmed = url.trim();
+    if (!trimmed) return '';
+    return trimmed.match(/^https?:\/\//i) ? trimmed : `https://${trimmed}`;
+  };
+
+  const handleImport = (): void => {
+    const cleanUrl = getCleanUrl();
+    if (!cleanUrl || widths.length === 0 || !relayUp) return;
+    void run('Rendering page', () =>
+      relayRender(cleanUrl, { widths, fullPage: true, colorScheme: theme }),
+    );
+  };
+
   return (
     <section>
-      <p className="hint">
-        {relayUp
-          ? 'The local relay renders the page with Playwright and sends back the IR.'
-          : 'Start the local relay first: pnpm relay (listens on localhost:3579).'}
-      </p>
-      <input
-        type="url"
-        placeholder="https://example.com"
-        value={url}
-        onChange={(e) => setUrl(e.currentTarget.value)}
-      />
+      <div
+        style={{
+          padding: '8px 10px',
+          borderRadius: '6px',
+          fontSize: '11px',
+          background: relayUp ? 'rgba(34, 197, 94, 0.12)' : 'rgba(234, 179, 8, 0.12)',
+          border: `1px solid ${relayUp ? 'rgba(34, 197, 94, 0.3)' : 'rgba(234, 179, 8, 0.3)'}`,
+          color: relayUp ? '#22c55e' : '#eab308',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+        }}
+      >
+        <span>{relayUp ? '🟢 Local Relay Connected' : '🟡 Local Relay Offline'}</span>
+        <span style={{ color: 'var(--muted)', fontSize: '10px' }}>
+          {relayUp
+            ? '(Playwright headless ready)'
+            : '— run `pnpm relay` in terminal to import live URLs'}
+        </span>
+      </div>
+
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+        <input
+          type="url"
+          placeholder="Enter website URL (e.g. stripe.com)"
+          value={url}
+          onChange={(e) => setUrl(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleImport();
+          }}
+          style={{ flex: 1, minWidth: 0 }}
+        />
+        <button
+          className="primary"
+          style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+          disabled={!relayUp || url.trim() === '' || widths.length === 0}
+          onClick={handleImport}
+        >
+          {widths.length > 1 ? `Import (${widths.length})` : 'Import'}
+        </button>
+      </div>
 
       <div className="field">
         <span className="label">Breakpoints</span>
@@ -264,7 +330,7 @@ function UrlTab({ run, relayUp }: TabProps & { relayUp: boolean | null }): JSX.E
         </div>
         {widths.length > 1 && (
           <p className="hint">
-            {widths.length} captures, laid out side by side in one frame.
+            {widths.length} responsive layouts, placed side-by-side in Figma.
           </p>
         )}
       </div>
@@ -286,18 +352,7 @@ function UrlTab({ run, relayUp }: TabProps & { relayUp: boolean | null }): JSX.E
         </div>
       </div>
 
-      <div className="row">
-        <button
-          className="primary"
-          disabled={!relayUp || url.trim() === '' || widths.length === 0}
-          onClick={() =>
-            void run('Rendering page', () =>
-              relayRender(url, { widths, fullPage: true, colorScheme: theme }),
-            )
-          }
-        >
-          {widths.length > 1 ? `Import ${widths.length} breakpoints` : 'Import URL'}
-        </button>
+      <div className="row" style={{ marginTop: '4px' }}>
         <button
           disabled={!relayUp}
           onClick={() =>
@@ -308,7 +363,7 @@ function UrlTab({ run, relayUp }: TabProps & { relayUp: boolean | null }): JSX.E
             })
           }
         >
-          Latest capture
+          Fetch latest extension capture
         </button>
       </div>
     </section>
@@ -318,89 +373,342 @@ function UrlTab({ run, relayUp }: TabProps & { relayUp: boolean | null }): JSX.E
 function HtmlTab({ run }: TabProps): JSX.Element {
   const [html, setHtml] = useState('');
   const [width, setWidth] = useState(1440);
+  const [fileName, setFileName] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const processFile = (file: File): void => {
+    setFileName(file.name);
+    void file.text().then((text) => {
+      setHtml(text);
+      void run('Rendering HTML', () =>
+        captureInIframe(text, { width, skipPrepare: false, sourceRef: file.name }).then((r) => r.doc),
+      );
+    });
+  };
+
   return (
     <section>
       <p className="hint">
-        Drop a self-contained HTML file. It renders in a hidden iframe here, with no
-        network round trip.
+        Drop or select a self-contained HTML file. It renders in a hidden iframe with zero network round trips.
       </p>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".html,.htm,text/html"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) processFile(file);
+          e.target.value = '';
+        }}
+      />
+
       <div
-        className="dropzone"
-        onDragOver={(e) => e.preventDefault()}
+        className={`dropzone ${isDragging ? 'dragging' : ''}`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragging(true);
+        }}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragging(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragging(false);
+        }}
         onDrop={(e) => {
           e.preventDefault();
+          e.stopPropagation();
+          setIsDragging(false);
           const file = e.dataTransfer.files[0];
-          if (!file) return;
-          void file.text().then((text) => {
-            setHtml(text);
-            void run('Rendering HTML', () =>
-              captureInIframe(text, { width, skipPrepare: false, sourceRef: file.name }).then((r) => r.doc),
-            );
-          });
+          if (file) processFile(file);
         }}
+        onClick={() => fileInputRef.current?.click()}
       >
-        Drop an .html file
+        <span className="dropzone-icon">📄</span>
+        <div>
+          <strong style={{ display: 'block', marginBottom: '2px' }}>
+            {fileName ? `Selected: ${fileName}` : 'Click to choose HTML file or drag & drop'}
+          </strong>
+          <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
+            .html or .htm files
+          </span>
+        </div>
       </div>
+
       <textarea
         value={html}
-        placeholder="...or paste HTML"
+        placeholder="...or paste HTML source code directly here"
         onChange={(e) => setHtml(e.currentTarget.value)}
       />
-      <button
-        className="primary"
-        disabled={html.trim() === ''}
-        onClick={() =>
-          void run('Rendering HTML', () =>
-            captureInIframe(html, { width, sourceRef: 'pasted-html' }).then((r) => r.doc),
-          )
-        }
-      >
-        Import HTML
-      </button>
-      <label className="row">
-        Viewport width
-        <input
-          type="number"
-          value={width}
-          onChange={(e) => setWidth(Number(e.currentTarget.value))}
-        />
-      </label>
+      <div className="row">
+        <button
+          className="primary"
+          disabled={html.trim() === ''}
+          onClick={() =>
+            void run('Rendering HTML', () =>
+              captureInIframe(html, { width, sourceRef: fileName || 'pasted-html' }).then((r) => r.doc),
+            )
+          }
+        >
+          Import HTML
+        </button>
+        <label className="row" style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--muted)' }}>
+          Width:
+          <input
+            type="number"
+            value={width}
+            onChange={(e) => setWidth(Number(e.currentTarget.value))}
+            style={{ width: '70px', padding: '4px 6px' }}
+          />
+        </label>
+      </div>
     </section>
   );
 }
 
-function ImageTab({ run, relayUp }: TabProps & { relayUp: boolean | null }): JSX.Element {
+interface ImageInfo {
+  dataUrl: string;
+  name: string;
+  size: number;
+  width: number;
+  height: number;
+}
+
+function ImageTab({
+  run,
+  relayUp,
+  geminiConfigured,
+}: TabProps & { relayUp: boolean | null; geminiConfigured?: boolean }): JSX.Element {
+  const [image, setImage] = useState<ImageInfo | null>(null);
   const [note, setNote] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [apiKey, setApiKey] = useState(() => {
+    try {
+      return localStorage.getItem('web2figma_gemini_key') ?? '';
+    } catch {
+      return '';
+    }
+  });
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const processFile = (file: File): void => {
+    if (!file.type.startsWith('image/')) {
+      setNote('Please select an image file (PNG, JPG, or WebP).');
+      return;
+    }
+    setNote('');
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result);
+      const img = new Image();
+      img.onload = () => {
+        if (img.width < 1000) {
+          setNote(`Image is ${img.width}px wide; conversion quality is best with images ≥ 1000px.`);
+        }
+        setImage({
+          dataUrl,
+          name: file.name,
+          size: file.size,
+          width: img.width,
+          height: img.height,
+        });
+      };
+      img.onerror = () => {
+        setNote('Could not read image dimensions. Please try another image.');
+      };
+      img.src = dataUrl;
+    };
+    reader.onerror = () => {
+      setNote('Failed to read file from disk.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDrop = (e: React.DragEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      processFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  // Support pasting image from clipboard (e.g. Snipping Tool / Win+Shift+S)
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent): void => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith('image/')) {
+          const file = items[i].getAsFile();
+          if (file) {
+            e.preventDefault();
+            processFile(file);
+            return;
+          }
+        }
+      }
+    };
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, []);
+
+  const handleConvert = (): void => {
+    if (!image || !relayUp) return;
+    void run('Reconstructing design with Gemini', () =>
+      relayImage(image.dataUrl, {
+        width: image.width,
+        apiKey: apiKey.trim() || undefined,
+      }),
+    );
+  };
+
   return (
     <section>
-      <p className="hint">
-        A screenshot becomes a starting point, not a reproduction. Use a full-resolution,
-        uncropped image at least 1000px wide.
-      </p>
       <div
-        className="dropzone"
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => {
-          e.preventDefault();
-          const file = e.dataTransfer.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = () => {
-            const dataUrl = String(reader.result);
-            const img = new Image();
-            img.onload = () => {
-              if (img.width < 1000) {
-                setNote(`That image is ${img.width}px wide; quality degrades below 1000px.`);
-              }
-              void run('Reading the image', () => relayImage(dataUrl, { width: img.width }));
-            };
-            img.src = dataUrl;
-          };
-          reader.readAsDataURL(file);
+        style={{
+          padding: '8px 10px',
+          borderRadius: '6px',
+          fontSize: '11px',
+          background: relayUp ? 'rgba(34, 197, 94, 0.12)' : 'rgba(234, 179, 8, 0.12)',
+          border: `1px solid ${relayUp ? 'rgba(34, 197, 94, 0.3)' : 'rgba(234, 179, 8, 0.3)'}`,
+          color: relayUp ? '#22c55e' : '#eab308',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
         }}
       >
-        {relayUp ? 'Drop a PNG or JPG' : 'Start the local relay to use the image pipeline'}
+        <span>{relayUp ? '🟢 Local Relay Connected' : '🟡 Local Relay Offline'}</span>
+        <span style={{ color: 'var(--muted)', fontSize: '10px' }}>
+          {relayUp
+            ? geminiConfigured
+              ? '(Gemini Vision AI active)'
+              : '(Vision synthesis ready)'
+            : '— run `pnpm relay` in terminal to convert images'}
+        </span>
       </div>
+
+      <div className="field" style={{ gap: '4px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span className="label">
+            Gemini Vision Key {geminiConfigured ? '✓ (Loaded)' : '(Free)'}
+          </span>
+          <a
+            href="https://aistudio.google.com/apikey"
+            target="_blank"
+            rel="noreferrer"
+            style={{ fontSize: '10px', color: 'var(--accent)', textDecoration: 'none' }}
+          >
+            Get free key ↗
+          </a>
+        </div>
+        <input
+          type="password"
+          placeholder={
+            geminiConfigured
+              ? 'Key loaded from .env (Active)'
+              : 'Paste API key here (or set in .env)'
+          }
+          value={apiKey}
+          onChange={(e) => {
+            const val = e.currentTarget.value;
+            setApiKey(val);
+            try {
+              localStorage.setItem('web2figma_gemini_key', val);
+            } catch {
+              // ignore
+            }
+          }}
+          style={{ fontSize: '11px', padding: '6px 8px' }}
+        />
+      </div>
+
+      <p className="hint">
+        Convert screenshots or designs into editable Figma components. Works best with images at least 1000px wide.
+      </p>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) processFile(file);
+          e.target.value = '';
+        }}
+      />
+
+      {!image ? (
+        <div
+          className={`dropzone ${isDragging ? 'dragging' : ''}`}
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <span className="dropzone-icon">🖼️</span>
+          <div>
+            <strong style={{ display: 'block', marginBottom: '2px' }}>
+              Click to choose image or drag & drop here
+            </strong>
+            <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
+              PNG, JPG, or WebP (or press Ctrl+V to paste screenshot)
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="preview-container">
+          <img src={image.dataUrl} alt="Selected preview" className="preview-img" />
+          <div className="preview-meta">
+            <span>{image.name || 'Screenshot'}</span>
+            <span>•</span>
+            <span>{image.width} × {image.height} px</span>
+            <span>•</span>
+            <span>{(image.size / 1024).toFixed(0)} KB</span>
+          </div>
+          <div className="row" style={{ width: '100%', justifyContent: 'center', gap: '8px' }}>
+            <button
+              className="primary"
+              disabled={!relayUp}
+              onClick={handleConvert}
+            >
+              Convert to Figma
+            </button>
+            <button
+              className="ghost"
+              onClick={() => {
+                setImage(null);
+                setNote('');
+              }}
+            >
+              Choose different image
+            </button>
+          </div>
+        </div>
+      )}
+
       {note && <p className="warn">{note}</p>}
     </section>
   );

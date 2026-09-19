@@ -1,9 +1,46 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { randomUUID } from 'node:crypto';
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import type { IRDocument } from '@web2figma/ir';
 import { DEFAULT_BREAKPOINTS, combineDocuments, transformDocument } from '@web2figma/transform';
 import { imageToHtml } from '@web2figma/image-pipeline';
-import { closeBrowser, renderHtml, renderUrl, screenshotHtml } from './renderer.js';
+import { closeBrowser, decodeImage, renderHtml, renderUrl, screenshotHtml } from './renderer.js';
+import { createGeminiVisionModel } from './gemini.js';
+
+// Find and load .env from current or any parent directory
+function loadEnv(): string | null {
+  let dir = process.cwd();
+  for (let i = 0; i < 5; i++) {
+    const candidate = resolve(dir, '.env');
+    if (existsSync(candidate)) {
+      try {
+        const lines = readFileSync(candidate, 'utf8').split('\n');
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith('#')) continue;
+          const eq = trimmed.indexOf('=');
+          if (eq !== -1) {
+            const k = trimmed.slice(0, eq).trim();
+            let v = trimmed.slice(eq + 1).trim();
+            if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+              v = v.slice(1, -1);
+            }
+            if (!process.env[k]) process.env[k] = v;
+          }
+        }
+        return candidate;
+      } catch {
+        // continue search
+      }
+    }
+    const parent = resolve(dir, '..');
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
+}
+loadEnv();
 
 /**
  * T2 local relay (PRD section 6).
@@ -87,7 +124,16 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   }
 
   if (url.pathname === '/health') {
-    json(res, 200, { ok: true, captures: captures.size, version: 1 });
+    const latest = latestId ? captures.get(latestId) : undefined;
+    json(res, 200, {
+      ok: true,
+      captures: captures.size,
+      latestId: latestId ?? null,
+      latestAt: latest?.at ?? null,
+      latestSource: latest?.doc?.source?.ref ?? null,
+      version: 1,
+      geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
+    });
     return;
   }
 
@@ -159,17 +205,31 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
       image: string;
       width?: number;
       iterations?: number;
+      apiKey?: string;
     };
     if (!body.image) {
       json(res, 400, { error: 'image is required' });
       return;
     }
+
+    const apiKey = (body.apiKey && body.apiKey.trim()) || process.env.GEMINI_API_KEY;
+    const model = apiKey ? createGeminiVisionModel(apiKey) : undefined;
+
     const synthesis = await imageToHtml(body.image, {
       ...(body.width !== undefined ? { width: body.width } : {}),
-      ...(body.iterations !== undefined ? { iterations: body.iterations } : {}),
+      iterations: body.iterations ?? 1,
+      model,
+      decode: decodeImage,
       renderHtml: async (html, width) => screenshotHtml(html, { width }),
     });
-    const raw = await renderHtml(synthesis.html, { width: synthesis.width });
+
+    // If synthesis produced an empty body with no content, fallback to embedding the image directly
+    const bodyContent = synthesis.html.replace(/[\s\S]*<body[^>]*>([\s\S]*)<\/body>[\s\S]*/i, '$1').trim();
+    const htmlToRender = bodyContent.length === 0
+      ? `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;width:${synthesis.width}px;display:flex;background:#ffffff;}img{width:100%;height:auto;display:block;}</style></head><body><img src="${body.image}" alt="Captured design"/></body></html>`
+      : synthesis.html;
+
+    const raw = await renderHtml(htmlToRender, { width: synthesis.width, height: synthesis.height });
     const { doc } = transformDocument(raw);
     doc.warnings.push(...synthesis.warnings);
     store(doc);
@@ -182,6 +242,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
 
 server.listen(PORT, '127.0.0.1', () => {
   console.log(`web2figma relay listening on http://localhost:${PORT}`);
+  console.log(`  Vision AI (Gemini): ${process.env.GEMINI_API_KEY ? 'READY (Key loaded)' : 'OFFLINE (No key in .env)'}`);
   console.log('  POST /ir           store a capture from the extension');
   console.log('  GET  /ir/latest    fetch the newest capture');
   console.log('  POST /render       render a URL with Playwright');

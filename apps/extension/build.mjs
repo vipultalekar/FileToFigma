@@ -44,5 +44,6 @@ if (watch) {
 
 await copyFile(resolve(here, 'manifest.json'), resolve(outdir, 'manifest.json'));
 await copyFile(resolve(here, 'popup/popup.html'), resolve(outdir, 'popup.html'));
+await copyFile(resolve(here, 'vendor/capture.js'), resolve(outdir, 'capture.js'));
 
 console.log('extension built into apps/extension/dist (load unpacked)');

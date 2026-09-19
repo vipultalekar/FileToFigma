@@ -3,7 +3,7 @@
   "name": "Web2Figma",
   "version": "0.1.0",
   "description": "Capture any page or element as editable Figma layers.",
-  "permissions": ["activeTab", "scripting", "clipboardWrite", "storage"],
+  "permissions": ["activeTab", "scripting", "clipboardWrite", "storage", "debugger"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js",
