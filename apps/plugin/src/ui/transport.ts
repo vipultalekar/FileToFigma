@@ -97,7 +97,26 @@ export async function decodeClipboard(payload: string): Promise<IRDocument> {
   return doc;
 }
 
-export const RELAY_ORIGIN = 'http://localhost:3579';
+export function getRelayOrigin(): string {
+  try {
+    const custom = localStorage.getItem('web2figma_relay_url');
+    if (custom && custom.trim()) {
+      return custom.trim().replace(/\/+$/, '');
+    }
+  } catch {}
+  return 'http://localhost:3579';
+}
+
+export function setRelayOrigin(url: string): void {
+  try {
+    const clean = url.trim().replace(/\/+$/, '');
+    if (clean && clean !== 'http://localhost:3579') {
+      localStorage.setItem('web2figma_relay_url', clean);
+    } else {
+      localStorage.removeItem('web2figma_relay_url');
+    }
+  } catch {}
+}
 
 export interface RelayHealthInfo {
   ok: boolean;
@@ -110,7 +129,7 @@ export interface RelayHealthInfo {
 /** T2: local relay health check. */
 export async function relayHealth(): Promise<RelayHealthInfo> {
   try {
-    const res = await fetch(`${RELAY_ORIGIN}/health`, { method: 'GET' });
+    const res = await fetch(`${getRelayOrigin()}/health`, { method: 'GET' });
     if (!res.ok) return { ok: false };
     const data = (await res.json()) as {
       ok?: boolean;
@@ -132,7 +151,7 @@ export async function relayHealth(): Promise<RelayHealthInfo> {
 }
 
 export async function relayLatest(): Promise<IRDocument | null> {
-  const res = await fetch(`${RELAY_ORIGIN}/ir/latest`);
+  const res = await fetch(`${getRelayOrigin()}/ir/latest`);
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`Relay error ${res.status}`);
   return (await res.json()) as IRDocument;
@@ -149,7 +168,7 @@ export async function relayRender(
   url: string,
   options: RenderRequest = {},
 ): Promise<IRDocument> {
-  const res = await fetch(`${RELAY_ORIGIN}/render`, {
+  const res = await fetch(`${getRelayOrigin()}/render`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ url, ...options }),
@@ -162,7 +181,7 @@ export async function relayImage(
   dataUrl: string,
   options: { width?: number; apiKey?: string } = {},
 ): Promise<IRDocument> {
-  const res = await fetch(`${RELAY_ORIGIN}/image`, {
+  const res = await fetch(`${getRelayOrigin()}/image`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ image: dataUrl, ...options }),

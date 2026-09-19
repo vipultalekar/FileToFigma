@@ -34,7 +34,13 @@ async function getBrowser(): Promise<Browser> {
   if (browser && browser.isConnected()) return browser;
   browser = await chromium.launch({
     headless: true,
-    args: ['--disable-web-security', '--disable-features=IsolateOrigins,site-per-process'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-web-security',
+      '--disable-features=IsolateOrigins,site-per-process',
+    ],
   });
   return browser;
 }

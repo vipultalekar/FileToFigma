@@ -49,7 +49,8 @@ loadEnv();
  * Playwright. Nothing is written to disk and nothing leaves the machine.
  */
 
-const PORT = Number(process.env.WEB2FIGMA_PORT ?? 3579);
+const PORT = Number(process.env.PORT ?? process.env.WEB2FIGMA_PORT ?? 3579);
+const HOST = process.env.HOST ?? '0.0.0.0';
 const MAX_BODY = 200 * 1024 * 1024;
 
 interface StoredCapture {
@@ -240,8 +241,8 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   json(res, 404, { error: 'not found' });
 }
 
-server.listen(PORT, '127.0.0.1', () => {
-  console.log(`web2figma relay listening on http://localhost:${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`web2figma relay listening on http://${HOST}:${PORT}`);
   console.log(`  Vision AI (Gemini): ${process.env.GEMINI_API_KEY ? 'READY (Key loaded)' : 'OFFLINE (No key in .env)'}`);
   console.log('  POST /ir           store a capture from the extension');
   console.log('  GET  /ir/latest    fetch the newest capture');
